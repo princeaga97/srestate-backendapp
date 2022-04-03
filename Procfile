@@ -1,0 +1,1 @@
+web: gunicorn srestate.wsgi --log-file - --log-level debug

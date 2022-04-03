@@ -1,0 +1,86 @@
+from django.contrib.auth import get_user_model, logout
+from UserManagement.models import Users
+from django.views.decorators.csrf import csrf_exempt
+from django.core.exceptions import ImproperlyConfigured
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework.renderers import JSONRenderer
+from UserManagement.utils import get_and_authenticate_user, create_user_account
+from UserManagement import serializers
+import json
+
+User = Users()
+
+@api_view(('POST',))
+@csrf_exempt
+def validate_mobile(request):
+    print(request.body)
+    serializer = serializers.UserLoginSerializer(data= json.loads(request.body))
+    print(serializer)
+    if serializer.is_valid():
+        print("serializer.validated_data",serializer.data)
+        user = create_user_account(**serializer.data)
+        data = serializers.AuthUserSerializer(user[0]).data
+        if user[1]:
+            return Response(data=data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(data=data, status=status.HTTP_200_OK)
+    else:
+        print(serializer.errors)
+        return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+# @api_view(('POST',))
+# @csrf_exempt
+# def validate_otp(request):
+#     print(request)
+#     serializer = serializers.AuthUserSerializer(data=request.data)
+#     print(serializer)
+#     if serializer.is_valid(raise_exception=True):
+#         user = get_and_authenticate_user(**serializer.validated_data)
+#         data = serializers.AuthUserSerializer().get_auth_token.data
+#         if user:
+#             return Response(data=data, status=status.HTTP_201_CREATED)
+#         else:
+#             return Response(data=data, status=status.HTTP_200_OK)
+#     else:
+#         return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+
+    
+
+# class AuthViewSet(viewsets.GenericViewSet):
+#     permission_classes = [AllowAny, ]
+#     serializer_class = serializers.EmptySerializer
+#     serializer_classes = {
+#         'login': serializers.UserLoginSerializer,
+#         'register': serializers.UserRegisterSerializer
+#     }
+
+#     @action(methods=['POST', ], detail=False)
+#     def login(self, request):
+#         ...
+
+#     @action(methods=['POST', ], detail=False)
+#     def register(self, request):
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         user = create_user_account(**serializer.validated_data)
+#         data = serializers.AuthUserSerializer(user).data
+#         return Response(data=data, status=status.HTTP_201_CREATED)
+    
+
+#     @action(methods=['POST', ], detail=False)
+#     def logout(self, request):
+#         logout(request)
+#         data = {'success': 'Sucessfully logged out'}
+#         return Response(data=data, status=status.HTTP_200_OK)
+
+#     def get_serializer_class(self):
+#         ...
