@@ -6,24 +6,33 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view ,authentication_classes, permission_classes
+
 from rest_framework.renderers import JSONRenderer
 from UserManagement.utils import get_and_authenticate_user, create_user_account
-from UserManagement import serializers
+from UserManagement import serializers as sz
 import json
+from django.core import serializers
+
+# assuming obj is a model instance
+
 
 User = Users()
 
+
 @api_view(('POST',))
+@permission_classes([])
+@authentication_classes([])
 @csrf_exempt
 def validate_mobile(request):
     print(request.body)
-    serializer = serializers.UserLoginSerializer(data= json.loads(request.body))
+    serializer = sz.UserLoginSerializer(data= json.loads(request.body))
     print(serializer)
     if serializer.is_valid():
-        print("serializer.validated_data",serializer.data)
         user = create_user_account(**serializer.data)
-        data = serializers.AuthUserSerializer(user[0]).data
+        serialized_obj = serializers.serialize('json', [ user[0], ])
+        print(serialized_obj)
+        data = sz.AuthUserSerializer(user[0]).data
         if user[1]:
             return Response(data=data, status=status.HTTP_201_CREATED)
         else:

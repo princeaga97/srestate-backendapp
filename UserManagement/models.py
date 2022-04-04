@@ -51,7 +51,7 @@ class Users(AbstractUser):
         db_table = "tbl_users"
 
     def __str__(self):
-        return str(self.Mobile)
+        return str(self.Mobile)+str(self.id)
 
 
     def has_perm(self, perm, obj=None): return self.is_superuser

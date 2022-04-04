@@ -21,6 +21,7 @@ class AuthUserSerializer(serializers.ModelSerializer):
     
     def get_auth_token(self, obj):
         token = Token.objects.get_or_create(user=obj)
+        print(token)
         print(token[0])
         return token[0].key
 
