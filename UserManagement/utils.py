@@ -19,19 +19,23 @@ from datetime import datetime
 # and set the environment variables. See http://twil.io/secure
 
 def send_otp(mobile):
-    account_sid = TWILIO_ACCOUNT_SID
-    auth_token = TWILIO_AUTH_TOKEN
-    client = Client(account_sid, auth_token)
-    OTP = str(random.randint(100000,999999))
-    print(OTP)
-    message = client.messages \
-                    .create(
-                        body=f"OTP for SR ESTATE {OTP}",
-                        from_='+18645288237',
-                        to=f'+91{mobile}'
-                    )
-    print(message.sid)
-    return OTP
+    try:
+        account_sid = TWILIO_ACCOUNT_SID
+        auth_token = TWILIO_AUTH_TOKEN
+        client = Client(account_sid, auth_token)
+        OTP = str(random.randint(100000,999999))
+        print(OTP)
+        message = client.messages \
+                        .create(
+                            body=f"OTP for SR ESTATE {OTP}",
+                            from_='+18645288237',
+                            to=f'+91{mobile}'
+                        )
+        print(message.sid)
+        return OTP
+    except Exception as e:
+        print(e)
+        return 123456
 
 
 def get_and_authenticate_user(Mobile, otp):
@@ -39,8 +43,8 @@ def get_and_authenticate_user(Mobile, otp):
     return user
 
 def create_user_account(Mobile):
-    #otp =send_otp(mobile = Mobile)
-    otp = 123456
+    otp =send_otp(mobile = Mobile)
+    #otp = 123456
     brokeruser ,created = BrokersUsers.objects.get_or_create(
         Mobile=Mobile)
     brokeruser.otp = otp
