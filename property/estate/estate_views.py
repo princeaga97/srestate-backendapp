@@ -52,7 +52,8 @@ class ListEstateAPIView(ListAPIView):
     def get(self,request):
         print(request.user.is_authenticated)
         print(request.user.mobile)
-        queryset = Estate.objects.filter(is_deleted = False,broker_mobile = request.user.mobile)
+        mycol = db.property_estate
+        queryset = mycol.find({"broker_mobile":request.user.mobile})            
         serializer = EstateSerializer(queryset,many = True)
         print(serializer)
         jobject = json.dumps(serializer.data)
