@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model, logout
-from UserManagement.models import Users
+from UserManagement.models import BrokersUsers
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ImproperlyConfigured
 from rest_framework import viewsets, status
@@ -17,7 +17,7 @@ from django.core import serializers
 # assuming obj is a model instance
 
 
-User = Users()
+User = BrokersUsers()
 
 
 @api_view(('POST',))
@@ -25,21 +25,19 @@ User = Users()
 @authentication_classes([])
 @csrf_exempt
 def validate_mobile(request):
-    print(request.body)
     serializer = sz.UserLoginSerializer(data= json.loads(request.body))
-    print(serializer)
     if serializer.is_valid():
         user = create_user_account(**serializer.data)
         serialized_obj = serializers.serialize('json', [ user[0], ])
         print(serialized_obj)
-        data = sz.AuthUserSerializer(user[0]).data
+        data = sz.AuthBrokersUserserializer(user[0]).data
         if user[1]:
             return Response(data=data, status=status.HTTP_201_CREATED)
         else:
             return Response(data=data, status=status.HTTP_200_OK)
     else:
         print(serializer.errors)
-        return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -49,11 +47,11 @@ def validate_mobile(request):
 # @csrf_exempt
 # def validate_otp(request):
 #     print(request)
-#     serializer = serializers.AuthUserSerializer(data=request.data)
+#     serializer = serializers.AuthBrokersUserserializer(data=request.data)
 #     print(serializer)
 #     if serializer.is_valid(raise_exception=True):
 #         user = get_and_authenticate_user(**serializer.validated_data)
-#         data = serializers.AuthUserSerializer().get_auth_token.data
+#         data = serializers.AuthBrokersUserserializer().get_auth_token.data
 #         if user:
 #             return Response(data=data, status=status.HTTP_201_CREATED)
 #         else:
@@ -81,7 +79,7 @@ def validate_mobile(request):
 #         serializer = self.get_serializer(data=request.data)
 #         serializer.is_valid(raise_exception=True)
 #         user = create_user_account(**serializer.validated_data)
-#         data = serializers.AuthUserSerializer(user).data
+#         data = serializers.AuthBrokersUserserializer(user).data
 #         return Response(data=data, status=status.HTTP_201_CREATED)
     
 

@@ -83,8 +83,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
 'DEFAULT_PERMISSION_CLASSES': [
+    'rest_framework.permissions.IsAuthenticated',
 ]
 }
+
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
@@ -98,6 +100,7 @@ DATABASES = {
     }
 }
 
+AUTH_USER_MODEL = "UserManagement.User" 
 TWILIO_ACCOUNT_SID = "ACdd809e6c2f3029ea93a26bb07f67448c"
 TWILIO_AUTH_TOKEN = "a7fcc19f494b90918d473425f831db38"
 

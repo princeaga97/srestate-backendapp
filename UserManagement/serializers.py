@@ -1,29 +1,38 @@
 import imp
 
 from marshmallow import ValidationError
-from UserManagement.models import Users
+from UserManagement.models import BrokersUsers ,User
 from rest_framework.authtoken.models import Token
 from rest_framework import serializers
 from django.contrib.auth.models import BaseUserManager
 
-User = Users()
 
 class UserLoginSerializer(serializers.Serializer):
     Mobile = serializers.CharField(max_length = 10)
 
+    def validate_Mobile(self,value):
+        if len(value) != 10:
+            raise serializers.ValidationError("mobile length error")
+        return str(value)
 
-class AuthUserSerializer(serializers.ModelSerializer):
+
+class AuthBrokersUserserializer(serializers.ModelSerializer):
     auth_token = serializers.SerializerMethodField()
+    otp = serializers.SerializerMethodField()
 
     class Meta:
-         model = Users
-         fields = ('Mobile','auth_token','otp')
+         model = User
+         fields = ('mobile','auth_token','otp')
     
     def get_auth_token(self, obj):
         token = Token.objects.get_or_create(user=obj)
         print(token)
         print(token[0])
         return token[0].key
+
+    def get_otp(self,obj):
+        brokeruser = BrokersUsers.objects.get(Mobile = obj.mobile)
+        return brokeruser.otp
 
 
 
@@ -33,7 +42,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     """
 
     class Meta:
-        model = Users
+        model = BrokersUsers
         fields = ('Mobile',)
 
     def validate_mobile(self, value):
