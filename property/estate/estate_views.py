@@ -1,5 +1,6 @@
 from email.policy import HTTP
 import imp
+from pydoc import cli
 from UserManagement import serializers
 from rest_framework.generics import ListAPIView ,CreateAPIView,DestroyAPIView,UpdateAPIView
 from rest_framework.response import Response
@@ -8,11 +9,15 @@ from rest_framework.parsers import MultiPartParser,FormParser ,JSONParser
 from rest_framework.renderers import JSONRenderer
 from rest_framework.decorators import api_view ,authentication_classes, permission_classes ,parser_classes
 import json
+from srestate.settings import mongo_uri
 from property.estate.wputils import get_data_from_msg
 from django.views.decorators.csrf import csrf_exempt
 from property.estate.estate_serializers import EstateSerializer, EstateStatusSerializer, EstateTypeSerializer,ImageSerializer , EstateWPSerializer
 from property.models import Estate, EstateStatus, EstateType ,photos,City,Apartment,Area , Broker
+import pymongo
 
+client = pymongo.MongoClient(mongo_uri)
+db = client['your-db-name']
 
 def modify_input_for_multiple_files(estate_id, image):
     dict = {}
@@ -59,6 +64,8 @@ class CreateEstateAPIView(CreateAPIView):
     serializer_class = EstateSerializer
 
     def post(self,request,mobile):
+        broker_user =   db['UserManagement_brokersusers'].find_many({"id":3})
+        print(broker_user)
         serilizer = EstateSerializer(data=request.data)
         
         if serilizer.is_valid():
