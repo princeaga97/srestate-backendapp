@@ -108,8 +108,7 @@ DATABASES = {
 
 AUTH_USER_MODEL = "UserManagement.User" 
 TWILIO_ACCOUNT_SID = "ACdd809e6c2f3029ea93a26bb07f67448c"
-TWILIO_AUTH_TOKEN = "a7fcc19f494b90918d473425f831db38"
-
+TWILIO_AUTH_TOKEN = "e3bf6a69c745c66487a995e6772a09ff"
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
