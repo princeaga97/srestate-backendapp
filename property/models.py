@@ -23,7 +23,7 @@ class Area(models.Model):
     #id =  models.IntegerField(primary_key=True)
     area_name = models.CharField(max_length=128)
     city = models.CharField(max_length=128, default= "surat")
-    pincode = models.IntegerField(blank= True, null= True)
+    pincode = models.IntegerField(blank= True)
     is_deleted = models.BooleanField(default=False)
 
     class Meta:
@@ -67,11 +67,11 @@ class Client(models.Model):
     #id =  models.IntegerField(primary_key=True)
     client_name = models.CharField(max_length=255)
     client_address = models.CharField(max_length=255)
-    contact_person = models.CharField(max_length=255, blank=True, null=True)
-    phone = models.CharField(max_length=64, blank=True, null=True)
-    mobile = models.CharField(max_length=64, blank=True, null=True)
-    mail = models.CharField(max_length=64, blank=True, null=True)
-    client_details = models.TextField(blank=True, null=True)  # This field type is a guess.
+    contact_person = models.CharField(max_length=255, blank=True)
+    phone = models.CharField(max_length=64, blank=True)
+    mobile = models.CharField(max_length=64, blank=True)
+    mail = models.CharField(max_length=64, blank=True)
+    client_details = models.TextField(blank=True)  # This field type is a guess.
 
     class Meta:
         managed = True
@@ -96,14 +96,14 @@ class Estate(models.Model):
     estate_name = models.CharField(max_length=255)
     city = models.CharField(max_length=128, default= "")
     estate_type = models.CharField(max_length=128, default= "")
-    floor_space = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
-    number_of_balconies = models.IntegerField(blank=True, null=True)
-    balconies_space = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
-    number_of_bedrooms = models.IntegerField(blank=True, null=True)
-    number_of_bathrooms = models.IntegerField(blank=True, null=True)
-    number_of_garages = models.IntegerField(blank=True, null=True)
-    number_of_parking_spaces = models.IntegerField(blank=True, null=True)
-    pets_allowed = models.IntegerField(blank=True, null=True)
+    floor_space = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
+    number_of_balconies = models.IntegerField(blank=True)
+    balconies_space = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
+    number_of_bedrooms = models.IntegerField(blank=True)
+    number_of_bathrooms = models.IntegerField(blank=True)
+    number_of_garages = models.IntegerField(blank=True)
+    number_of_parking_spaces = models.IntegerField(blank=True)
+    pets_allowed = models.IntegerField(blank=True)
     estate_description = models.TextField()  # This field type is a guess.
     estate_status = models.CharField(max_length=128, default= "")
     is_deleted = models.BooleanField(default=False)
@@ -143,7 +143,7 @@ class InCharge(models.Model):
     estate = models.CharField(max_length=128, default= "")
     broker = models.CharField(max_length=128, default= "")
     date_from = models.DateField()
-    date_to = models.DateField(blank=True, null=True)
+    date_to = models.DateField(blank=True)
 
     class Meta:
         managed = True

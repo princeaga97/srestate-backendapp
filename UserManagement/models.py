@@ -34,13 +34,6 @@ class Users(AbstractUser):
     phone_regex = RegexValidator(regex=r'^\d{10}$', message="Phone number must be entered in the format: '999999999'. 10 digit mobile number.")
     Mobile = models.CharField(validators=[phone_regex], max_length=10, blank=True , unique= True) # validators should be a list
     name = models.CharField(max_length=30, blank=True, null=True)
-    username= models.CharField(max_length=30,unique=True, blank=True, null=True)
-    is_admin = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
-    is_broker = models.BooleanField(default=False)
-    is_staff = models.BooleanField(default=False)
-    is_super_teacher = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
     otp = models.CharField(max_length=30, blank=True, null=True)
 
     USERNAME_FIELD = 'Mobile'

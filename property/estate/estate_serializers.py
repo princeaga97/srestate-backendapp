@@ -36,3 +36,8 @@ class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = photos
         fields = '__all__'
+
+
+class EstateWPSerializer(serializers.Serializer):
+    string = serializers.CharField()
+    #mobile  = serializers.CharField(max_length = 10)

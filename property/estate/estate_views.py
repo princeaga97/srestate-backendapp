@@ -1,11 +1,16 @@
-from rest_framework.generics import ListAPIView
-from rest_framework.generics import CreateAPIView
-from rest_framework.generics import DestroyAPIView
-from rest_framework.generics import UpdateAPIView
+from email.policy import HTTP
+import imp
+from UserManagement import serializers
+from rest_framework.generics import ListAPIView ,CreateAPIView,DestroyAPIView,UpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.parsers import MultiPartParser,FormParser
-from property.estate.estate_serializers import EstateSerializer, EstateStatusSerializer, EstateTypeSerializer,ImageSerializer
+from rest_framework.parsers import MultiPartParser,FormParser ,JSONParser
+from rest_framework.renderers import JSONRenderer
+from rest_framework.decorators import api_view ,authentication_classes, permission_classes ,parser_classes
+import json
+from property.estate.wputils import get_data_from_msg
+from django.views.decorators.csrf import csrf_exempt
+from property.estate.estate_serializers import EstateSerializer, EstateStatusSerializer, EstateTypeSerializer,ImageSerializer , EstateWPSerializer
 from property.models import Estate, EstateStatus, EstateType ,photos,City,Apartment,Area , Broker
 
 
@@ -17,24 +22,52 @@ def modify_input_for_multiple_files(estate_id, image):
 
 
 
+
+@api_view(('POST',))
+@permission_classes([])
+@parser_classes([JSONParser,])
+@csrf_exempt
+def get_data_from_wp(request):
+    print(request.body)
+    serializer = EstateWPSerializer(data= json.loads(request.body))
+    if serializer.is_valid():
+        data = get_data_from_msg(**serializer.data)
+        
+        return Response(data=data, status=status.HTTP_200_OK)
+    else:
+        print(serializer.errors)
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 # Create your views here.
 class ListEstateAPIView(ListAPIView):
     queryset = Estate.objects.all()
     serializer_class = EstateSerializer
+    def get(self,request):
+        print(request.user.is_authenticated)
+        print(request.user.mobile)
+        queryset = Estate.objects.filter(is_deleted = False,broker_mobile = int(request.user.mobile))
+        serializer = EstateSerializer(queryset,many = True)
+        print(serializer)
+        jobject = json.dumps(serializer.data)
+        return Response(data=jobject, status=status.HTTP_200_OK)
 
+@permission_classes([])
 class CreateEstateAPIView(CreateAPIView):
     queryset = Estate.objects.all()
     serializer_class = EstateSerializer
 
     def post(self,request,mobile):
         serilizer = EstateSerializer(data=request.data)
-        if len(str(mobile)) == 10:
-            broker,created = broker.objects.get_or_create(
-            name = serilizer.data["broker_name"],
-            mobile = int(mobile)
-            )
-        print(request.data)
+        
         if serilizer.is_valid():
+            if len(str(mobile)) == 10:
+                broker,created = Broker.objects.get_or_create(
+                name = serilizer.data["broker_name"],
+                mobile = int(mobile)
+                )
+                print(request.data)
             data1 =  serilizer.validated_data
             # converts querydict to original dict
             flag = 1
@@ -88,11 +121,8 @@ class CreateEstateAPIView(CreateAPIView):
 
             estate = serilizer.create(data1)
             print(estate)
-
-            
-            
-            
-            
+            estate.broker_mobile = mobile
+            estate.save()
             if flag == 1:
                 context = {
                     "images":arr,
@@ -125,6 +155,7 @@ class DeleteEstateAPIView(DestroyAPIView):
 class ListEstateStatusAPIView(ListAPIView):
     queryset = EstateStatus.objects.filter(is_deleted = 0)
     serializer_class = EstateStatusSerializer
+    
 
 class CreateEstateStatusAPIView(CreateAPIView):
     parser_classes = (MultiPartParser, FormParser)
