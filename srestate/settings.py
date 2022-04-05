@@ -29,7 +29,7 @@ SECRET_KEY = 'os*+e_tp3#-yj#5lr^da=2%4!omhenb%$@-emahbe63+qjpa-m'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["srestate.herokuapp.com","127.0.0.1"]
+ALLOWED_HOSTS = ["srestateapi.herokuapp.com","127.0.0.1"]
 
 
 # Application definition
