@@ -64,8 +64,6 @@ class CreateEstateAPIView(CreateAPIView):
     serializer_class = EstateSerializer
 
     def post(self,request,mobile):
-        broker_user =   db['UserManagement_brokersusers'].find_many({"id":3})
-        print(broker_user)
         serilizer = EstateSerializer(data=request.data)
         
         if serilizer.is_valid():
