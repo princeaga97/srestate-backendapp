@@ -5,7 +5,7 @@ from rest_framework.generics import UpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from property.location.location_serializers import CitySerializer, AreaSerializer, ApartmentSerializer
+from property.location.location_serializers import ApartmentbulkSerializer, CitySerializer, AreaSerializer, ApartmentSerializer
 from property.models import Area,City, Apartment
 
 
@@ -128,6 +128,33 @@ class DeleteAreaAPIView(DestroyAPIView):
 class ListApartmentAPIView(ListAPIView):
     queryset = Apartment.objects.filter(is_deleted = 0)
     serializer_class = ApartmentSerializer
+
+class CreateBulkApartmentAPIView(CreateAPIView):
+    queryset = Apartment.objects.all()
+    serializer_class = ApartmentbulkSerializer
+
+    def post(self,request):
+        context = []
+        print("hello")
+        apartmentlist = request.data["apartmentlist"]
+        for data in apartmentlist:
+            print(data)
+            apartment,created = Apartment.objects.get_or_create(
+                apartment_name = data["apartment_name"].lower(),
+                area = data["area"].lower()
+            )
+            apartment.save()
+
+            context.append({
+                "msg":"Created Successfully"
+            })
+        
+
+            
+        
+        return Response(context, status=status.HTTP_200_OK)
+
+
 
 class CreateApartmentAPIView(CreateAPIView):
     queryset = Apartment.objects.all()

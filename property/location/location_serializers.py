@@ -1,3 +1,4 @@
+from dataclasses import fields
 from rest_framework import serializers
 from property.models import City,Area,Apartment
 
@@ -18,3 +19,8 @@ class ApartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Apartment
         exclude = ["is_deleted"]
+
+class ApartmentbulkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Apartment
+        fields = ["apartment_name","area"]

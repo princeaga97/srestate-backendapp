@@ -13,6 +13,7 @@ urlpatterns = [
     path("area/delete/<int:pk>/",views.DeleteAreaAPIView.as_view(),name="delete_area"),
 	path("apartment/",views.ListApartmentAPIView.as_view(),		  		  name="apartment_list"),
     path("apartment/create/", views.CreateApartmentAPIView.as_view(),		  name="apartment_create"),
+    path("apartment/blukcreate/", views.CreateBulkApartmentAPIView.as_view(),		  name="apartment_bulk_create"),
     path("apartment/update/<int:pk>/",views.UpdateApartmentAPIView.as_view(),name="update_apartment"),
     path("apartment/delete/<int:pk>/",views.DeleteApartmentAPIView.as_view(),name="delete_apartment")
 ]

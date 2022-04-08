@@ -5,6 +5,8 @@ from nis import match
 import re
 import json
 
+
+
 def checkisdigit(inputstring):
     if True in [char.isdigit() for char in inputstring]:
         return True
@@ -181,6 +183,7 @@ def findType(input):
     
     return typelist
 
+#societylist = apartment.objects.all()
 societylist = ["Royal Paradise","Keshav Narayan","Raj Harmoney","Grandza","Rayaltone","Sun Sine Residency","Anupam hieght","Dev bhoomi","Sns splendid","Hitek Avenue","Surya green view","Next orchied","Veer exotica","CAPITAL GREENS","ECO GARDEN","SANGINI","OFIRA RESIDENCY" ,"RAJHANS","Srungal Solitaire","Rajhans Royalton","utsav","meera","marvela","Aakash expression","SURYA PRAKASH RESIDENCY",
 "NISRAG AAPRMENT","RAJTILAK AAPRMENT","SURYA PLEASE","AARNAV APRMENT","SURYA DARSAN","KPM RESIDENCY","MURTI RESIDENCY","FALCAN AVENUE","AASHIRWAD PARK","GOLDEN AVENUE","PADMA KURTI","SHIMANDAR APPRMENT" ,"BAGVTI ASHISH" ,"MEGNA PARK","SHITAL PARK","NAVPAD AAPRMENT" ,"SURYA COMPLEX" ,"PALACIO","KESHAV NARAYNA","OPERA HOUSE","AARJAV AAPRMENT","MAAHI RESIDENCY","MAGH SHARMAND","SAKAR RESIDENCY","MURLIDHAR","SANGINI RESIDENCY"]
 
@@ -229,8 +232,6 @@ def findPropertyType(input):
             typelist.append(i)
             break
     return typelist    
-
-
 
 def findALlRequiremnts(lines,start_index):
     myDict = dict()

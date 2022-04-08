@@ -84,7 +84,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
 'DEFAULT_PERMISSION_CLASSES': [
-    'rest_framework.permissions.IsAuthenticated',
+    #'rest_framework.permissions.IsAuthenticated',
 ]
 }
 
@@ -92,6 +92,15 @@ REST_FRAMEWORK = {
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+
+
+CACHES = {
+    'default': {
+        "host":"redis-14152.c264.ap-south-1-1.ec2.cloud.redislabs.com",
+        "port":"14152",
+        "password":"93mHkCGxkxM0Wj2yjcO8bxkhlECCOCis"
+    }
+}
 
 mongo_uri =  'mongodb+srv://srestateapi:' + str(urllib.parse.quote("changingbyte@123"))  +'@cluster0.0zdkv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
 

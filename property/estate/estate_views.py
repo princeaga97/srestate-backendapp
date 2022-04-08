@@ -1,20 +1,26 @@
+from curses import keyname
 from email.policy import HTTP
-import imp
 from pydoc import cli
-from UserManagement import serializers
 from rest_framework.generics import ListAPIView ,CreateAPIView,DestroyAPIView,UpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser,FormParser ,JSONParser
-from rest_framework.renderers import JSONRenderer
 from rest_framework.decorators import api_view ,authentication_classes, permission_classes ,parser_classes
 import json
-from srestate.settings import mongo_uri
+from srestate.settings import mongo_uri , CACHES
 from property.estate.wputils import get_data_from_msg
 from django.views.decorators.csrf import csrf_exempt
 from property.estate.estate_serializers import EstateSerializer, EstateStatusSerializer, EstateTypeSerializer,ImageSerializer , EstateWPSerializer
 from property.models import Estate, EstateStatus, EstateType ,photos,City,Apartment,Area , Broker
 import pymongo
+import redis
+
+
+
+cache = redis.Redis(
+    host=CACHES["default"]["host"],
+    port=CACHES["default"]["port"], 
+    password=CACHES["default"]["password"])
 
 client = pymongo.MongoClient(mongo_uri)
 db = client['your-db-name']
@@ -45,19 +51,33 @@ def get_data_from_wp(request):
 
 
 
+@permission_classes([])
 # Create your views here.
 class ListEstateAPIView(ListAPIView):
     queryset = Estate.objects.all()
     serializer_class = EstateSerializer
     def get(self,request):
-        print(request.user.is_authenticated)
-        print(request.user.mobile)
         mycol = db.property_estate
-        queryset = mycol.find({"broker_mobile":request.user.mobile})            
-        serializer = EstateSerializer(queryset,many = True)
-        print(serializer)
-        jobject = json.dumps(serializer.data)
-        return Response(data=jobject, status=status.HTTP_200_OK)
+        queryset = mycol.find({"broker_mobile":request.user.mobile})
+        
+        if request.user.mobile in cache:
+            estates = cache.get(request.user.mobile)
+            if queryset.count()!= len(estates):
+                serializer = EstateSerializer(queryset,many = True)
+                print(serializer)
+                jobject = json.dumps(serializer.data)
+                cache.setex(name = request.user.mobile, value=jobject, time=60)
+                return Response(data=jobject, status=status.HTTP_200_OK)
+            else:
+                return Response(estates, status=status.HTTP_200_OK)
+        else:
+            print(request.user.is_authenticated)
+            print(request.user.mobile)
+            serializer = EstateSerializer(queryset,many = True)
+            print(serializer)
+            jobject = json.dumps(serializer.data)
+            cache.setex(name= request.user.mobile, value=jobject, time=60)
+            return Response(data=jobject, status=status.HTTP_200_OK)
 
 @permission_classes([])
 class CreateEstateAPIView(CreateAPIView):
