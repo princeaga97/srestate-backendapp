@@ -20,6 +20,12 @@ class ApartmentSerializer(serializers.ModelSerializer):
         model = Apartment
         exclude = ["is_deleted"]
 
+
+class ApartmentlistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Apartment
+        fields = ["area"]
+
 class ApartmentbulkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Apartment

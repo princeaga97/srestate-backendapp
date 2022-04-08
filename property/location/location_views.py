@@ -1,13 +1,23 @@
+from urllib.parse import quote_from_bytes
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import CreateAPIView
 from rest_framework.generics import DestroyAPIView
 from rest_framework.generics import UpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
+import pymongo
+from srestate.settings import mongo_uri,CACHES
+import json
+import redis
 
-from property.location.location_serializers import ApartmentbulkSerializer, CitySerializer, AreaSerializer, ApartmentSerializer
+from property.location.location_serializers import ApartmentbulkSerializer, CitySerializer, AreaSerializer, ApartmentSerializer ,ApartmentlistSerializer
 from property.models import Area,City, Apartment
 
+
+cache = redis.Redis(
+    host=CACHES["default"]["host"],
+    port=CACHES["default"]["port"], 
+    password=CACHES["default"]["password"])
 
 # Create your views here.
 class ListCityAPIView(ListAPIView):
@@ -28,8 +38,26 @@ class DeleteCityAPIView(DestroyAPIView):
 
 
 class ListAreaAPIView(ListAPIView):
-    queryset = Area.objects.filter(is_deleted = 0)
     serializer_class = AreaSerializer
+    def get(self,request):
+        client = pymongo.MongoClient(mongo_uri)
+        db = client['your-db-name']
+        mycol = db.property_area
+        queryset = mycol.find({"is_deleted":False})
+        if "area" in cache:
+            areas = cache.get("area")
+            if queryset.count()!= len(areas):
+                serializer = AreaSerializer(queryset,many = True)
+                print(serializer)
+                jobject = json.dumps(serializer.data)
+                cache.setex(name = request.user.mobile, value=jobject, time=60*60*24)
+                return Response(data=jobject, status=status.HTTP_200_OK)
+            else:
+                return Response(areas, status=status.HTTP_200_OK)
+        serializer = AreaSerializer(queryset,many = True)
+        jobject = json.dumps(serializer.data)
+        cache.setex(name= "area", value=jobject, time=60*60*24)
+        return Response(data=jobject, status=status.HTTP_200_OK)
 
 class CreateAreaAPIView(CreateAPIView):
     queryset = Area.objects.all()
@@ -127,7 +155,19 @@ class DeleteAreaAPIView(DestroyAPIView):
 
 class ListApartmentAPIView(ListAPIView):
     queryset = Apartment.objects.filter(is_deleted = 0)
-    serializer_class = ApartmentSerializer
+    serializer_class = ApartmentlistSerializer
+    def get(self,request):
+        client = pymongo.MongoClient(mongo_uri)
+        db = client['your-db-name']
+        mycol = db.property_apartment
+        if "area" in request.data:
+            queryset = mycol.find({"is_deleted":False,"area":request.data["area"]})
+        else:
+            queryset = mycol.find({"is_deleted":False})
+        serializer = ApartmentSerializer(queryset,many = True)
+        jobject = json.dumps(serializer.data)
+        cache.setex(name= "area", value=jobject, time=60*60*24)
+        return Response(data=jobject, status=status.HTTP_200_OK)
 
 class CreateBulkApartmentAPIView(CreateAPIView):
     queryset = Apartment.objects.all()

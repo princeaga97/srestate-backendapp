@@ -22,8 +22,7 @@ cache = redis.Redis(
     port=CACHES["default"]["port"], 
     password=CACHES["default"]["password"])
 
-client = pymongo.MongoClient(mongo_uri)
-db = client['your-db-name']
+
 
 def modify_input_for_multiple_files(estate_id, image):
     dict = {}
@@ -54,9 +53,10 @@ def get_data_from_wp(request):
 @permission_classes([])
 # Create your views here.
 class ListEstateAPIView(ListAPIView):
-    queryset = Estate.objects.all()
     serializer_class = EstateSerializer
     def get(self,request):
+        client = pymongo.MongoClient(mongo_uri)
+        db = client['your-db-name']
         mycol = db.property_estate
         queryset = mycol.find({"broker_mobile":request.user.mobile})
         
@@ -66,7 +66,7 @@ class ListEstateAPIView(ListAPIView):
                 serializer = EstateSerializer(queryset,many = True)
                 print(serializer)
                 jobject = json.dumps(serializer.data)
-                cache.setex(name = request.user.mobile, value=jobject, time=60)
+                cache.setex(name = request.user.mobile, value=jobject, time=60*60*24)
                 return Response(data=jobject, status=status.HTTP_200_OK)
             else:
                 return Response(estates, status=status.HTTP_200_OK)
@@ -76,7 +76,7 @@ class ListEstateAPIView(ListAPIView):
             serializer = EstateSerializer(queryset,many = True)
             print(serializer)
             jobject = json.dumps(serializer.data)
-            cache.setex(name= request.user.mobile, value=jobject, time=60)
+            cache.setex(name= request.user.mobile, value=jobject, time=60*60*24)
             return Response(data=jobject, status=status.HTTP_200_OK)
 
 @permission_classes([])
