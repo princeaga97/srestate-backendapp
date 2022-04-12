@@ -1,6 +1,6 @@
 from dataclasses import fields
 from rest_framework import serializers
-from property.models import City,Area,Apartment
+from property.models import City,Area,Apartment, Broker
 
 
 class AreaSerializer(serializers.ModelSerializer):
@@ -14,6 +14,17 @@ class CitySerializer(serializers.ModelSerializer):
         model = City
         exclude = ["is_deleted"]
 
+
+class BrokerSerializer(serializers.ModelSerializer):
+    area = serializers.ListField(
+            child=serializers.CharField(max_length = 1000)
+            )
+    estate_type = serializers.ListField(
+            child=serializers.CharField(max_length = 1000)
+            )
+    class Meta:
+        model = Broker
+        exclude = ["mobile"]
 
 class ApartmentSerializer(serializers.ModelSerializer):
     class Meta:

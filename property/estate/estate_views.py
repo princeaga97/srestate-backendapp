@@ -31,6 +31,8 @@ def modify_input_for_multiple_files(estate_id, image):
     return dict
 
 
+client = pymongo.MongoClient(mongo_uri)
+db = client['your-db-name']
 
 
 @api_view(('POST',))
@@ -55,19 +57,21 @@ def get_data_from_wp(request):
 class ListEstateAPIView(ListAPIView):
     serializer_class = EstateSerializer
     def get(self,request):
-        client = pymongo.MongoClient(mongo_uri)
-        db = client['your-db-name']
+        
         mycol = db.property_estate
-        queryset = mycol.find({"broker_mobile":request.user.mobile})
+        queryset= mycol.find({"broker_mobile":request.user.mobile})
+        queryset1= list(mycol.find({"broker_mobile":request.user.mobile}))
         
         if request.user.mobile in cache:
             estates = cache.get(request.user.mobile)
+            print()
+            estates = json.loads(estates)
+            print("yes")
             if queryset.count()!= len(estates):
                 serializer = EstateSerializer(queryset,many = True)
-                print(serializer)
                 jobject = json.dumps(serializer.data)
-                cache.setex(name = request.user.mobile, value=jobject, time=60*60*24)
-                return Response(data=jobject, status=status.HTTP_200_OK)
+                cache.setex(name = request.user.mobile, value=jobject, time=60*15)
+                return Response(data=serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response(estates, status=status.HTTP_200_OK)
         else:
@@ -76,8 +80,8 @@ class ListEstateAPIView(ListAPIView):
             serializer = EstateSerializer(queryset,many = True)
             print(serializer)
             jobject = json.dumps(serializer.data)
-            cache.setex(name= request.user.mobile, value=jobject, time=60*60*24)
-            return Response(data=jobject, status=status.HTTP_200_OK)
+            cache.setex(name= request.user.mobile, value=jobject, time=60*15)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 @permission_classes([])
 class CreateEstateAPIView(CreateAPIView):

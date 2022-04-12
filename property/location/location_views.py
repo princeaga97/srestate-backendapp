@@ -10,14 +10,18 @@ from srestate.settings import mongo_uri,CACHES
 import json
 import redis
 
-from property.location.location_serializers import ApartmentbulkSerializer, CitySerializer, AreaSerializer, ApartmentSerializer ,ApartmentlistSerializer
-from property.models import Area,City, Apartment
+from property.location.location_serializers import ApartmentbulkSerializer, BrokerSerializer, CitySerializer, AreaSerializer, ApartmentSerializer ,ApartmentlistSerializer
+from property.models import Area, Broker,City, Apartment
 
 
 cache = redis.Redis(
     host=CACHES["default"]["host"],
     port=CACHES["default"]["port"], 
     password=CACHES["default"]["password"])
+
+print(mongo_uri)
+client = pymongo.MongoClient(mongo_uri)
+db = client['your-db-name']
 
 # Create your views here.
 class ListCityAPIView(ListAPIView):
@@ -40,8 +44,6 @@ class DeleteCityAPIView(DestroyAPIView):
 class ListAreaAPIView(ListAPIView):
     serializer_class = AreaSerializer
     def get(self,request):
-        client = pymongo.MongoClient(mongo_uri)
-        db = client['your-db-name']
         mycol = db.property_area
         queryset = mycol.find({"is_deleted":False})
         if "area" in cache:
@@ -193,6 +195,47 @@ class CreateBulkApartmentAPIView(CreateAPIView):
             
         
         return Response(context, status=status.HTTP_200_OK)
+
+
+class CreateBrokerAPIView(CreateAPIView):
+    queryset = Broker.objects.all()
+    serializer_class = BrokerSerializer
+
+    def post(self,request):
+        serilizer = BrokerSerializer(data=request.data)
+
+        if serilizer.is_valid():
+            try:
+                mycol = db.property_broker
+                updatestmt = (
+                    {"mobile":"8128975337"},
+                    {"$set":{
+                        "name": serilizer.data["name"],
+                        "area": serilizer.data["area"],
+                        "estate_type": serilizer.data["estate_type"],
+                        "balance":1000
+                    }}
+                )
+                broker = mycol.update_one(*updatestmt)
+
+                if broker.raw_result["n"] == 0:
+                    print(broker.raw_result)
+
+                context = {
+                    "msg":"Broker Created Successfully"
+                }
+
+                return Response(context, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response("Exception "+str(e), status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+            context = {
+                "msg": serilizer.errors
+            }
+
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 

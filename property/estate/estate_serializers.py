@@ -1,3 +1,4 @@
+from dataclasses import fields
 from email.policy import default
 from typing_extensions import Required
 from rest_framework import serializers
@@ -10,7 +11,11 @@ class EstateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Estate
-        exclude = ["is_deleted","broker_mobile"]
+        fields = ["estate_name","city","estate_type","floor_space",
+        "number_of_balconies","balconies_space","number_of_bedrooms",
+        "number_of_bathrooms","number_of_garages","number_of_parking_spaces",
+        "pets_allowed","estate_description","estate_status","society",
+        "area","broker_mobile","broker_name" ]
 
 
 
