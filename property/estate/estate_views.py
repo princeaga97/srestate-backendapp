@@ -279,22 +279,22 @@ class ListEstateTypeAPIView(ListAPIView):
     queryset = EstateType.objects.filter(is_deleted = 0)
     serializer_class = EstateTypeSerializer
     def get(self,request):
-        mycol = db.property_estate_type
+        mycol = db.property_estatetype
         queryset = mycol.find({"is_deleted":False})
         if "estate_type" in cache:
-            areas = cache.get("area")
+            areas = cache.get("estate_type")
             areas = json.loads(areas)
             if queryset.count()!= len(areas):
                 serializer = EstateTypeSerializer(queryset,many = True)
                 print(serializer)
                 jobject = json.dumps(serializer.data)
-                cache.setex(name = "estate_type", value=jobject, time=60*60*24)
+                cache.setex(name = "estate_type", value=jobject, time=60*60)
                 return Response(data=serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response(areas, status=status.HTTP_200_OK)
         serializer = EstateTypeSerializer(queryset,many = True)
         jobject = json.dumps(serializer.data)
-        cache.setex(name= "estate_type", value=jobject, time=60*60*24)
+        cache.setex(name= "estate_type", value=jobject, time=60*60)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
