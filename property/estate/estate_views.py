@@ -14,6 +14,7 @@ from property.estate.estate_serializers import EstateSerializer, EstateStatusSer
 from property.models import Estate, EstateStatus, EstateType ,photos,City,Apartment,Area , Broker
 import pymongo
 import redis
+from property.location.location_views import db
 
 
 
@@ -30,9 +31,6 @@ def modify_input_for_multiple_files(estate_id, image):
     dict['image'] = image
     return dict
 
-
-client = pymongo.MongoClient(mongo_uri)
-db = client['your-db-name']
 
 
 @api_view(('POST',))
@@ -280,6 +278,26 @@ class DeleteEstateStatusAPIView(DestroyAPIView):
 class ListEstateTypeAPIView(ListAPIView):
     queryset = EstateType.objects.filter(is_deleted = 0)
     serializer_class = EstateTypeSerializer
+    def get(self,request):
+        mycol = db.property_estate_type
+        queryset = mycol.find({"is_deleted":False})
+        if "estate_type" in cache:
+            areas = cache.get("area")
+            areas = json.loads(areas)
+            if queryset.count()!= len(areas):
+                serializer = EstateTypeSerializer(queryset,many = True)
+                print(serializer)
+                jobject = json.dumps(serializer.data)
+                cache.setex(name = "estate_type", value=jobject, time=60*60*24)
+                return Response(data=serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(areas, status=status.HTTP_200_OK)
+        serializer = EstateTypeSerializer(queryset,many = True)
+        jobject = json.dumps(serializer.data)
+        cache.setex(name= "estate_type", value=jobject, time=60*60*24)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
 
 class CreateEstateTypeAPIView(CreateAPIView):
     queryset = EstateType.objects.all()

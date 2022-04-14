@@ -30,7 +30,7 @@ class EstateStatusSerializer(serializers.ModelSerializer):
 class EstateTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = EstateType
-        exclude = ["is_deleted"]
+        fields = ["type_name" ]
 
 
 class ImageSerializer(serializers.ModelSerializer):
