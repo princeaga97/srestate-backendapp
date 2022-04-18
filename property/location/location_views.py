@@ -5,12 +5,13 @@ from rest_framework.generics import DestroyAPIView
 from rest_framework.generics import UpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import api_view ,authentication_classes, permission_classes
 import pymongo
 from srestate.settings import mongo_uri,CACHES
 import json
 import redis
 
-from property.location.location_serializers import ApartmentbulkSerializer, BrokerSerializer, CitySerializer, AreaSerializer, ApartmentSerializer ,ApartmentlistSerializer
+from property.location.location_serializers import ApartmentbulkSerializer, BrokerBalanceSerializer, BrokerSerializer, CitySerializer, AreaSerializer, ApartmentSerializer ,ApartmentlistSerializer
 from property.models import Area, Broker,City, Apartment
 
 
@@ -236,7 +237,15 @@ class CreateBrokerAPIView(CreateAPIView):
 
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
-
+@api_view(('GET',))
+def get_balance(request):
+    mycol = db.property_broker
+    queryset= mycol.find({"mobile":request.user.mobile})
+    try:
+        serializer = BrokerBalanceSerializer(queryset,many = True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(data=str(e), status=status.HTTP_500)
 
 
 class CreateApartmentAPIView(CreateAPIView):

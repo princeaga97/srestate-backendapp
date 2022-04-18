@@ -105,6 +105,7 @@ class Estate(models.Model):
     area = models.CharField(max_length=128, default= "")
     broker_mobile = models.CharField(max_length=128, default= "")
     broker_name = models.CharField(max_length=128, default= "")
+    budget = models.IntegerField(blank=True)
 
     class Meta:
         managed = True

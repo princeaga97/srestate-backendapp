@@ -1,6 +1,7 @@
 from curses import keyname
 from email.policy import HTTP
 from pydoc import cli
+import re
 from rest_framework.generics import ListAPIView ,CreateAPIView,DestroyAPIView,UpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -49,16 +50,111 @@ def get_data_from_wp(request):
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(('GET',))
+@csrf_exempt
+def get_buy_estate(request):
+    mycol = db.property_estate
+    print(request.user)
+    queryset= mycol.find({
+        "broker_mobile":request.user.mobile,
+        "estate_type":"buy"
+        })
+    cache_query = str(request.user.mobile) + "buy"
+    if cache_query in cache:
+        estates = cache.get(cache_query)
+        estates = json.loads(estates)
+        if queryset.count()!= len(estates):
+            serializer = EstateSerializer(queryset,many = True)
+            jobject = json.dumps(serializer.data)
+            cache.setex(name = request.user.mobile, value=jobject, time=60*15)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(estates, status=status.HTTP_200_OK)
+    else:
+        serializer = EstateSerializer(queryset,many = True)
+        jobject = json.dumps(serializer.data)
+        cache.setex(name= cache_query, value=jobject, time=60*15)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(('GET',))
+@csrf_exempt
+def get_sell_estate(request):
+    mycol = db.property_estate
+    queryset= mycol.find({
+        "broker_mobile":request.user.mobile,
+        "estate_type":"sell"
+        })
+    cache_query = str(request.user.mobile) + "sell"
+    if cache_query in cache:
+        estates = cache.get(cache_query)
+        estates = json.loads(estates)
+        if queryset.count()!= len(estates):
+            serializer = EstateSerializer(queryset,many = True)
+            jobject = json.dumps(serializer.data)
+            cache.setex(name = request.user.mobile, value=jobject, time=60*15)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(estates, status=status.HTTP_200_OK)
+    else:
+        serializer = EstateSerializer(queryset,many = True)
+        jobject = json.dumps(serializer.data)
+        cache.setex(name= cache_query, value=jobject, time=60*15)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(('POST',))
+@csrf_exempt
+def get_filter_estate(request):
+
+    findQuery = {}
+    findQuery["broker_mobile"] = request.user.mobile
+    if "area" in request.data.keys() and list(request.data["area"]):
+        findQuery["area"] = {"$in":list(request.data["area"])}
+    
+    if "estate_status" in request.data.keys() and list(request.data["estate_status"]):
+        findQuery["estate_status"] = {"$in":list(request.data["estate_status"])}
+    
+    if "estate_type" in request.data.keys() and list(request.data["estate_type"]):
+        findQuery["estate_type"] = {"$in":list(request.data["estate_type"])}
+    
+    if "number_of_bedrooms" in request.data.keys() and list(request.data["number_of_bedrooms"]):
+        findQuery["number_of_bedrooms"] = {"$in":list(request.data["number_of_bedrooms"])}
+    
+    if "society" in request.data.keys() and list(request.data["apartment"]):
+        findQuery["society"] = {"$in":list(request.data["apartment"])}
+    
+
+    mycol = db.property_estate
+    queryset= mycol.find(findQuery)
+    cache_query = str(request.user.mobile) + "sell"
+    if cache_query in cache:
+        estates = cache.get(cache_query)
+        estates = json.loads(estates)
+        if queryset.count()!= len(estates):
+            serializer = EstateSerializer(queryset,many = True)
+            jobject = json.dumps(serializer.data)
+            cache.setex(name = request.user.mobile, value=jobject, time=60*15)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(estates, status=status.HTTP_200_OK)
+    else:
+        serializer = EstateSerializer(queryset,many = True)
+        jobject = json.dumps(serializer.data)
+        cache.setex(name= cache_query, value=jobject, time=60*15)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+
 
 @permission_classes([])
-# Create your views here.
 class ListEstateAPIView(ListAPIView):
     serializer_class = EstateSerializer
     def get(self,request):
         
         mycol = db.property_estate
         queryset= mycol.find({"broker_mobile":request.user.mobile})
-        queryset1= list(mycol.find({"broker_mobile":request.user.mobile}))
+        
         
         if request.user.mobile in cache:
             estates = cache.get(request.user.mobile)
@@ -143,6 +239,7 @@ class CreateEstateAPIView(CreateAPIView):
             )
 
 
+
             for i in data1.keys():
                 if type(data1[i]) == str:
                     data1[i] = data1[i].lower()
@@ -183,7 +280,24 @@ class DeleteEstateAPIView(DestroyAPIView):
 class ListEstateStatusAPIView(ListAPIView):
     queryset = EstateStatus.objects.filter(is_deleted = 0)
     serializer_class = EstateStatusSerializer
-    
+    def get(self,request):
+        mycol = db.property_estatestatus
+        queryset = mycol.find({"is_deleted":False})
+        if "estate_status" in cache:
+            estate_status = cache.get("estate_status")
+            estate_status = json.loads(estate_status)
+            if queryset.count()!= len(estate_status):
+                serializer = EstateStatusSerializer(queryset,many = True)
+                print(serializer)
+                jobject = json.dumps(serializer.data)
+                cache.setex(name = "estate_status", value=jobject, time=60*60)
+                return Response(data=serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(estate_status, status=status.HTTP_200_OK)
+        serializer = EstateStatusSerializer(queryset,many = True)
+        jobject = json.dumps(serializer.data)
+        cache.setex(name= "estate_status", value=jobject, time=60*60)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 class CreateEstateStatusAPIView(CreateAPIView):
     parser_classes = (MultiPartParser, FormParser)

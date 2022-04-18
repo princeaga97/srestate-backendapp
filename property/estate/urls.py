@@ -4,6 +4,9 @@ from property.estate import estate_views as views
 
 urlpatterns = [
     path("estate/",views.ListEstateAPIView.as_view(),name="estate_list"),
+    path("estate/buy/",views.get_buy_estate,name="estate_buy_list"),
+    path("estate/sell/",views.get_sell_estate,name="estate_sell_list"),
+    path("estate/filter/",views.get_filter_estate,name="estate_filter_list"),
     re_path(r'^estate/(?P<mobile>\d{0,50})/create/', views.CreateEstateAPIView.as_view(),name="estate_create"),
     path("estate/update/<int:pk>/",views.UpdateEstateAPIView.as_view(),name="update_estate"),
     path("estate/delete/<int:pk>/",views.DeleteEstateAPIView.as_view(),name="delete_estate"),

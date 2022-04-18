@@ -15,7 +15,7 @@ class EstateSerializer(serializers.ModelSerializer):
         "number_of_balconies","balconies_space","number_of_bedrooms",
         "number_of_bathrooms","number_of_garages","number_of_parking_spaces",
         "pets_allowed","estate_description","estate_status","society",
-        "area","broker_mobile","broker_name" ]
+        "area","broker_mobile","broker_name","budget" ]
 
 
 
