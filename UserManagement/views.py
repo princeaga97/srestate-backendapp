@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.decorators import api_view ,authentication_classes, permission_classes
-
+from property.location.location_views import db
 from rest_framework.renderers import JSONRenderer
 from UserManagement.utils import get_and_authenticate_user, create_user_account
 from UserManagement import serializers as sz
@@ -38,8 +38,6 @@ def validate_mobile(request):
     else:
         print(serializer.errors)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 
 

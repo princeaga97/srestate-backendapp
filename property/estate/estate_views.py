@@ -124,6 +124,10 @@ def get_filter_estate(request):
     if "society" in request.data.keys() and list(request.data["apartment"]):
         findQuery["society"] = {"$in":list(request.data["apartment"])}
     
+    if "budget" in request.data.keys() and list(request.data["budget"]):
+
+        findQuery["budget"] = {"$gte":list(request.data["budget"])[0],"$lte":list(request.data["budget"])[1]}
+    
 
     mycol = db.property_estate
     queryset= mycol.find(findQuery)
