@@ -1,7 +1,4 @@
-import imp
 from random import random
-from re import M
-from time import monotonic
 from venv import create
 from django.contrib.auth import authenticate
 from UserManagement.serializers import User
@@ -10,13 +7,26 @@ from UserManagement.models import BrokersUsers ,User
 from srestate.settings import TWILIO_AUTH_TOKEN ,TWILIO_ACCOUNT_SID
 from twilio.rest import Client
 import random
-import uuid
 from datetime import datetime
 
 
 
 # Find your Account SID and Auth Token at twilio.com/console
 # and set the environment variables. See http://twil.io/secure
+
+def send_whatsapp_msg(mobile,messageString):
+    account_sid = TWILIO_ACCOUNT_SID
+    auth_token = TWILIO_AUTH_TOKEN
+    client = Client(account_sid, auth_token) 
+    
+    message = client.messages.create( 
+                                from_='whatsapp:+14155238886',  
+                                body=messageString,
+                                to=f'whatsapp:+91{mobile}' 
+                            ) 
+    
+    print(message.sid)
+
 
 def send_otp(mobile):
     try:
@@ -36,6 +46,29 @@ def send_otp(mobile):
     except Exception as e:
         print(e)
         return 123456
+
+def send_sms(mobile,messageString):
+    try:
+        account_sid = TWILIO_ACCOUNT_SID
+        auth_token = TWILIO_AUTH_TOKEN
+        client = Client(account_sid, auth_token)
+        message = client.messages \
+                        .create(
+                            body=messageString,
+                            from_='+18645288237',
+                            to=f'+91{mobile}'
+                        )
+        print(message.sid)
+        msg_status= {}
+        msg_status["success"] = True
+        msg_status["msg"] = "Success"
+        return msg_status
+    except Exception as e:
+        msg_status= {}
+        msg_status["success"] = False
+        msg_status["msg"] = str(e)
+        return msg_status
+
 
 
 def get_and_authenticate_user(Mobile, otp):

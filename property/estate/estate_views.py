@@ -1,7 +1,6 @@
 from curses import keyname
 from email.policy import HTTP
 from pydoc import cli
-import re
 from rest_framework.generics import ListAPIView ,CreateAPIView,DestroyAPIView,UpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -15,7 +14,9 @@ from property.estate.estate_serializers import EstateSerializer, EstateStatusSer
 from property.models import Estate, EstateStatus, EstateType ,photos,City,Apartment,Area , Broker
 import pymongo
 import redis
+from property.utils import create_msg
 from property.location.location_views import db
+from UserManagement.utils import send_sms ,send_whatsapp_msg
 
 
 
@@ -147,6 +148,33 @@ def get_filter_estate(request):
         jobject = json.dumps(serializer.data)
         cache.setex(name= cache_query, value=jobject, time=60*15)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+@api_view(('POST',))
+@csrf_exempt
+def send_message(request):
+    findQuery ={}
+    if "estates" in request.data.keys() and list(request.data["estates"]):
+        findQuery["id"] = {"$in":list(request.data["estates"])}
+    findQuery["broker_mobile"] = request.user.mobile
+    
+    print(findQuery)
+    mycol = db.property_estate
+    queryset= mycol.find(findQuery)
+    if queryset:
+        listestate = list(queryset)
+        messageString = create_msg(listestate)
+        mobile_number = request.data["mobile"]
+        sms = send_sms(mobile_number,messageString)
+        whatsapp = send_whatsapp_msg(mobile_number,messageString)
+        if sms["success"]:
+            return Response(data=sms, status=status.HTTP_200_OK)
+        else:
+            return Response(data=sms, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(data={}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 
 
 
