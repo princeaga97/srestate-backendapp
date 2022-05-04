@@ -17,3 +17,4 @@ class BrokersUsers(models.Model):
 
 class User(AbstractUser):
     mobile = models.CharField(max_length=10)
+    balance = models.IntegerField(default=0)

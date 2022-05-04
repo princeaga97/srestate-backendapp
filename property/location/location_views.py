@@ -1,3 +1,4 @@
+import re
 from urllib.parse import quote_from_bytes
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import CreateAPIView
@@ -207,14 +208,21 @@ class CreateBrokerAPIView(CreateAPIView):
 
         if serilizer.is_valid():
             try:
+                mycol = db.UserManagement_user
+                updatestmt = (
+                    {"mobile":request.user.mobile},
+                    {"$set":{
+                        "balance": 1000,
+                    }}
+                )
+                broker = mycol.update_one(*updatestmt)
                 mycol = db.property_broker
                 updatestmt = (
-                    {"mobile":"8128975337"},
+                    {"mobile":request.user.mobile},
                     {"$set":{
                         "name": serilizer.data["name"],
                         "area": serilizer.data["area"],
                         "estate_type": serilizer.data["estate_type"],
-                        "balance":1000
                     }}
                 )
                 broker = mycol.update_one(*updatestmt)

@@ -15,17 +15,28 @@ from datetime import datetime
 # and set the environment variables. See http://twil.io/secure
 
 def send_whatsapp_msg(mobile,messageString):
-    account_sid = TWILIO_ACCOUNT_SID
-    auth_token = TWILIO_AUTH_TOKEN
-    client = Client(account_sid, auth_token) 
-    
-    message = client.messages.create( 
-                                from_='whatsapp:+14155238886',  
-                                body=messageString,
-                                to=f'whatsapp:+91{mobile}' 
-                            ) 
-    
-    print(message.sid)
+    try:
+        account_sid = TWILIO_ACCOUNT_SID
+        auth_token = TWILIO_AUTH_TOKEN
+        client = Client(account_sid, auth_token) 
+        
+        message = client.messages.create( 
+                                    from_='whatsapp:+14155238886',  
+                                    body=messageString,
+                                    to=f'whatsapp:+91{mobile}' 
+                                ) 
+        
+        print(message.sid)
+        msg_status= {}
+        msg_status["success"] = True
+        msg_status["msg"] = "Success"
+        return msg_status
+    except Exception as e:
+        msg_status= {}
+        msg_status["success"] = False
+        msg_status["msg"] = str(e)
+        return msg_status
+
 
 
 def send_otp(mobile):
@@ -81,6 +92,7 @@ def create_user_account(Mobile):
     brokeruser ,created = BrokersUsers.objects.get_or_create(
         Mobile=Mobile)
     brokeruser.otp = otp
+    brokeruser.balance = 1000
     brokeruser.save()
     print(created)
     if created == True:

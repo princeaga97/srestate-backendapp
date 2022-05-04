@@ -1,6 +1,8 @@
 from curses import keyname
 from email.policy import HTTP
 from pydoc import cli
+import re
+from tabnanny import check
 from rest_framework.generics import ListAPIView ,CreateAPIView,DestroyAPIView,UpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -14,9 +16,9 @@ from property.estate.estate_serializers import EstateSerializer, EstateStatusSer
 from property.models import Estate, EstateStatus, EstateType ,photos,City,Apartment,Area , Broker
 import pymongo
 import redis
-from property.utils import create_msg
+from property.utils import create_msg , check_balance
 from property.location.location_views import db
-from UserManagement.utils import send_sms ,send_whatsapp_msg
+from UserManagement.utils import send_sms ,send_whatsapp_msg 
 
 
 
@@ -160,16 +162,44 @@ def send_message(request):
     print(findQuery)
     mycol = db.property_estate
     queryset= mycol.find(findQuery)
+    response ={"success":True,
+        "error":" "}
     if queryset:
         listestate = list(queryset)
         messageString = create_msg(listestate)
+        if messageString == "":
+            return Response(data=response, status=status.HTTP_200_OK)
+        if request.user.balance < check_balance(request,listestate):
+            response["success"] =False
+            response["error"] = "Insufficent Balance"
+            response["required_balance"] = check_balance(request,listestate)
+            return Response(data=response, status=status.HTTP_400_BAD_REQUEST)
+
         mobile_number = request.data["mobile"]
-        sms = send_sms(mobile_number,messageString)
-        whatsapp = send_whatsapp_msg(mobile_number,messageString)
-        if sms["success"]:
-            return Response(data=sms, status=status.HTTP_200_OK)
+        
+        if "sms" in request.data and  request.data["sms"]:
+            sms = send_sms(mobile_number,messageString)
+            response["sms"] = sms
+            if not sms["success"]:
+                response["error"] = "sms failed"
+                response["success"] = False
+            else:
+                request.user.balance = request.user.balance - len(listestate)*5
+                request.user.save()
+        if "whatsapp" in request.data and  request.data["whatsapp"]:
+            whatsapp = send_whatsapp_msg(mobile_number,messageString)
+            response["whatsapp"] = whatsapp
+            if not whatsapp["success"]:
+                response["error"] =response["error"] + "sms failed"
+                response["success"] = False
+            else:
+                request.user.balance = request.user.balance - len(listestate)*10
+                request.user.save()
+           
+        if response["success"]:
+            return Response(data=response, status=status.HTTP_200_OK)
         else:
-            return Response(data=sms, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data=response, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response(data={}, status=status.HTTP_400_BAD_REQUEST)
 

@@ -2,6 +2,15 @@ from email import message
 from ntpath import join
 from property.message_mapping import MSG_MAPPING
 
+def check_balance(request,listestate):
+    amount  = 0
+
+    if "sms" in request.data and  request.data["sms"]:
+        amount = amount +  5 * len(listestate)
+    if "whatsapp" in request.data and  request.data["whatsapp"]:
+        amount = amount +  10 * len(listestate)
+    
+    return amount
 
 def create_msg(jobject):
     msg_string = ""
