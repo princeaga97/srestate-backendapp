@@ -12,7 +12,7 @@ from srestate.settings import mongo_uri,CACHES
 import json
 import redis
 
-from property.location.location_serializers import ApartmentbulkSerializer, BrokerBalanceSerializer, BrokerSerializer, CitySerializer, AreaSerializer, ApartmentSerializer ,ApartmentlistSerializer
+from property.location.location_serializers import ApartmentbulkSerializer, BrokerSerializer, CitySerializer, AreaSerializer, ApartmentSerializer ,ApartmentlistSerializer
 from property.models import Area, Broker,City, Apartment
 
 
@@ -50,18 +50,19 @@ class ListAreaAPIView(ListAPIView):
         queryset = mycol.find({"is_deleted":False})
         if "area" in cache:
             areas = cache.get("area")
+            areas = json.loads(areas)
             if queryset.count()!= len(areas):
                 serializer = AreaSerializer(queryset,many = True)
                 print(serializer)
                 jobject = json.dumps(serializer.data)
                 cache.setex(name = request.user.mobile, value=jobject, time=60*60*24)
-                return Response(data=jobject, status=status.HTTP_200_OK)
+                return Response(data=serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response(areas, status=status.HTTP_200_OK)
         serializer = AreaSerializer(queryset,many = True)
         jobject = json.dumps(serializer.data)
         cache.setex(name= "area", value=jobject, time=60*60*24)
-        return Response(data=jobject, status=status.HTTP_200_OK)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 class CreateAreaAPIView(CreateAPIView):
     queryset = Area.objects.all()
@@ -170,8 +171,8 @@ class ListApartmentAPIView(ListAPIView):
             queryset = mycol.find({"is_deleted":False})
         serializer = ApartmentSerializer(queryset,many = True)
         jobject = json.dumps(serializer.data)
-        cache.setex(name= "area", value=jobject, time=60*60*24)
-        return Response(data=jobject, status=status.HTTP_200_OK)
+        cache.setex(name= "area_"+str(request.data["area"]), value=jobject, time=60*60*24)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 class CreateBulkApartmentAPIView(CreateAPIView):
     queryset = Apartment.objects.all()
@@ -247,14 +248,8 @@ class CreateBrokerAPIView(CreateAPIView):
 
 @api_view(('GET',))
 def get_balance(request):
-    mycol = db.property_broker
-    queryset= mycol.find({"mobile":request.user.mobile})
-    try:
-        serializer = BrokerBalanceSerializer(queryset,many = True)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
-    except Exception as e:
-        return Response(data=str(e), status=status.HTTP_500)
-
+    return Response(request.user.balance, status=status.HTTP_400_BAD_REQUEST)
+    
 
 class CreateApartmentAPIView(CreateAPIView):
     queryset = Apartment.objects.all()

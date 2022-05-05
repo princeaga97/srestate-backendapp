@@ -173,6 +173,7 @@ def send_message(request):
             response["success"] =False
             response["error"] = "Insufficent Balance"
             response["required_balance"] = check_balance(request,listestate)
+            response["balance"] = request.user.balance
             return Response(data=response, status=status.HTTP_400_BAD_REQUEST)
 
         mobile_number = request.data["mobile"]
@@ -220,9 +221,7 @@ class ListEstateAPIView(ListAPIView):
         
         if request.user.mobile in cache:
             estates = cache.get(request.user.mobile)
-            print()
             estates = json.loads(estates)
-            print("yes")
             if queryset.count()!= len(estates):
                 serializer = EstateSerializer(queryset,many = True)
                 jobject = json.dumps(serializer.data)
@@ -231,10 +230,7 @@ class ListEstateAPIView(ListAPIView):
             else:
                 return Response(estates, status=status.HTTP_200_OK)
         else:
-            print(request.user.is_authenticated)
-            print(request.user.mobile)
             serializer = EstateSerializer(queryset,many = True)
-            print(serializer)
             jobject = json.dumps(serializer.data)
             cache.setex(name= request.user.mobile, value=jobject, time=60*15)
             return Response(data=serializer.data, status=status.HTTP_200_OK)

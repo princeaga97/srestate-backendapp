@@ -26,12 +26,6 @@ class BrokerSerializer(serializers.ModelSerializer):
         model = Broker
         exclude = ["mobile"]
 
-class BrokerBalanceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Broker
-        fields = ["mobile","balance"]
-
-
 class ApartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Apartment
