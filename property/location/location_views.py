@@ -248,7 +248,7 @@ class CreateBrokerAPIView(CreateAPIView):
 
 @api_view(('GET',))
 def get_balance(request):
-    return Response(request.user.balance, status=status.HTTP_400_BAD_REQUEST)
+    return Response(request.user.balance, status=status.HTTP_200_OK)
     
 
 class CreateApartmentAPIView(CreateAPIView):

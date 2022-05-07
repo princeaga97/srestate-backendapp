@@ -14,3 +14,10 @@ MSG_MAPPING={
         "broker_name": "BROKER",
         "budget": "BUDGET"
     }
+
+QUERY_MAPPING = {
+    "estate_status": "type",
+    "estate_type": "estate_type" ,
+    "budget": "budget",
+    "area" :"area"
+}

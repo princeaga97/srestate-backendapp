@@ -1,6 +1,8 @@
 from curses import keyname
 from email.policy import HTTP
 from pydoc import cli
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 import re
 from tabnanny import check
 from rest_framework.generics import ListAPIView ,CreateAPIView,DestroyAPIView,UpdateAPIView
@@ -42,7 +44,6 @@ def modify_input_for_multiple_files(estate_id, image):
 @parser_classes([JSONParser,])
 @csrf_exempt
 def get_data_from_wp(request):
-    print(request.body)
     serializer = EstateWPSerializer(data= json.loads(request.body))
     if serializer.is_valid():
         data = get_data_from_msg(**serializer.data)
@@ -161,13 +162,13 @@ def send_message(request):
     
     print(findQuery)
     mycol = db.property_estate
-    queryset= mycol.find(findQuery)
+    queryset= mycol.find({})
     response ={"success":True,
         "error":" "}
     if queryset:
         listestate = list(queryset)
         messageString = create_msg(listestate)
-        if messageString == "":
+        if messageString[0] == "":
             return Response(data=response, status=status.HTTP_200_OK)
         if request.user.balance < check_balance(request,listestate):
             response["success"] =False
@@ -178,26 +179,28 @@ def send_message(request):
 
         mobile_number = request.data["mobile"]
         
-        if "sms" in request.data and  request.data["sms"]:
-            sms = send_sms(mobile_number,messageString)
-            response["sms"] = sms
-            if not sms["success"]:
-                response["error"] = "sms failed"
-                response["success"] = False
-            else:
-                request.user.balance = request.user.balance - len(listestate)*5
-                request.user.save()
-        if "whatsapp" in request.data and  request.data["whatsapp"]:
-            whatsapp = send_whatsapp_msg(mobile_number,messageString)
-            response["whatsapp"] = whatsapp
-            if not whatsapp["success"]:
-                response["error"] =response["error"] + "sms failed"
-                response["success"] = False
-            else:
-                request.user.balance = request.user.balance - len(listestate)*10
-                request.user.save()
+        # if "sms" in request.data and  request.data["sms"]:
+        #     sms = send_sms(mobile_number,messageString[0])
+        #     response["sms"] = sms
+        #     if not sms["success"]:
+        #         response["error"] = "sms failed"
+        #         response["success"] = False
+        #     else:
+        #         request.user.balance = request.user.balance - len(listestate)*5
+        #         request.user.save()
+        # if "whatsapp" in request.data and  request.data["whatsapp"]:
+        #     whatsapp = send_whatsapp_msg(mobile_number,messageString[0])
+        #     response["whatsapp"] = whatsapp
+        #     if not whatsapp["success"]:
+        #         response["error"] =response["error"] + "sms failed"
+        #         response["success"] = False
+        #     else:
+        #         request.user.balance = request.user.balance - len(listestate)*10
+        #         request.user.save()
            
         if response["success"]:
+            query = db.property_enquiryquerys
+            query.insert_one(messageString[1])
             return Response(data=response, status=status.HTTP_200_OK)
         else:
             return Response(data=response, status=status.HTTP_400_BAD_REQUEST)
@@ -454,16 +457,16 @@ class ListEstateTypeAPIView(ListAPIView):
         mycol = db.property_estatetype
         queryset = mycol.find({"is_deleted":False})
         if "estate_type" in cache:
-            areas = cache.get("estate_type")
-            areas = json.loads(areas)
-            if queryset.count()!= len(areas):
+            estate_types = cache.get("estate_type")
+            estate_types = json.loads(estate_types)
+            if queryset.count()!= len(estate_types):
                 serializer = EstateTypeSerializer(queryset,many = True)
                 print(serializer)
                 jobject = json.dumps(serializer.data)
                 cache.setex(name = "estate_type", value=jobject, time=60*60)
                 return Response(data=serializer.data, status=status.HTTP_200_OK)
             else:
-                return Response(areas, status=status.HTTP_200_OK)
+                return Response(estate_types, status=status.HTTP_200_OK)
         serializer = EstateTypeSerializer(queryset,many = True)
         jobject = json.dumps(serializer.data)
         cache.setex(name= "estate_type", value=jobject, time=60*60)

@@ -4,7 +4,29 @@ from lib2to3.pygram import python_grammar_no_print_statement
 from nis import match
 import re
 import json
+from property.location.location_views import db
 
+required_fields = {
+    "area":[],
+    "type":[],
+    "apartment":[],
+    "furniture":["WITH FULL FURNITURE", "Fully Furnished","Semi Furnished","luxurious furnished","furnished","Renovated"],
+    "property_type":[],
+}
+
+mapping_db = {
+    "area":["area_name",db.property_area.find({},{"area_name":1,"_id":0})],
+    "type":["estate_status_name",db.property_estatestatus.find({},{"estate_status_name":1,"_id":0})],
+    "apartment":["apartment_name",db.property_apartment.find({},{"apartment_name":1,"_id":0})],
+    "property_type":["type_name",db.property_estate_type.find({},{"type_name":1,"_id":0})]
+}
+
+def findOptimized(required_fields,mapping_db):
+    for key,value  in mapping_db.items(): 
+        required_fields[key] = [ x[value[0]].upper() for x in   list(value[1]) ]
+    
+
+    return required_fields
 
 
 def checkisdigit(inputstring):
@@ -13,10 +35,6 @@ def checkisdigit(inputstring):
     else:
         return False
 
-def differnce_dict(dict1, dict2):
-    set1 = set(dict1.items())
-    set2 = set(dict2.items())
-    return set1 - set2
 
 def findMobile(inputstring):
     pattern = re.compile(r"\d{10}")
@@ -129,7 +147,7 @@ def filterRooms(mydict):
             size_matches = ["Sq. Yards" ,"sq yard","Sq yards","sq","carpet","ft","Sf","SFT","SB","SQFT","var", "Square","feet","vaar","VINGA"]
             size_matches = [ x.upper() for x in size_matches ]
             price_matches = ["lk","Lac","lakh", "cr","lak","lacs"]
-            price_matches = [ x.upper() for x in price_matches ]
+            prfindTypeice_matches = [ x.upper() for x in price_matches ]
             
             
             if any(x in mydict["Rooms"][j] for x in size_matches):
@@ -186,7 +204,7 @@ def findType(input):
 #societylist = apartment.objects.all()
 societylist = ["Royal Paradise","Keshav Narayan","Raj Harmoney","Grandza","Rayaltone","Sun Sine Residency","Anupam hieght","Dev bhoomi","Sns splendid","Hitek Avenue","Surya green view","Next orchied","Veer exotica","CAPITAL GREENS","ECO GARDEN","SANGINI","OFIRA RESIDENCY" ,"RAJHANS","Srungal Solitaire","Rajhans Royalton","utsav","meera","marvela","Aakash expression","SURYA PRAKASH RESIDENCY",
 "NISRAG AAPRMENT","RAJTILAK AAPRMENT","SURYA PLEASE","AARNAV APRMENT","SURYA DARSAN","KPM RESIDENCY","MURTI RESIDENCY","FALCAN AVENUE","AASHIRWAD PARK","GOLDEN AVENUE","PADMA KURTI","SHIMANDAR APPRMENT" ,"BAGVTI ASHISH" ,"MEGNA PARK","SHITAL PARK","NAVPAD AAPRMENT" ,"SURYA COMPLEX" ,"PALACIO","KESHAV NARAYNA","OPERA HOUSE","AARJAV AAPRMENT","MAAHI RESIDENCY","MAGH SHARMAND","SAKAR RESIDENCY","MURLIDHAR","SANGINI RESIDENCY"]
-
+rf =  findOptimized(required_fields,mapping_db)
 
 def findArea(input):
     keywords=["VESU","CITYLIGHT","PIPILOD", "NEW CITYLIGHT ROAD","PARLE POINT","Ghod Dod","Bhatar Road","v I P road","vIP road","ring road","palanpur","palgam","new city light","Mansarovar","PARVAT PATIA","GODADARA","althan","CITy light","Pandesara GIDC","adajan","Ghod Dhod Road","vackanja","Pal","Athwalines","Udhana","Kadodara","Udhna"]
@@ -202,9 +220,10 @@ def findArea(input):
 
 def findSociety(input):
     inputlist = input.split(" ")
-    keywords = [ x.upper() for x in societylist ]
+    keywords = [ x.upper() for x in rf["apartment"] ]
     typelist = []
     for i in keywords:
+        so = fuzz.ratio(i,inputlist)
         if i in inputlist or i in input:
             typelist.append(i)
     
@@ -308,7 +327,6 @@ def filterSize(mydict):
 
 
 def get_data_from_msg(string):
-
     lines  = string.split("\n")
     start_index =0
     end_index = 0
@@ -317,11 +335,11 @@ def get_data_from_msg(string):
     new_dic = dict()
     while i < len(lines):
         json_index = findALlRequiremnts(lines,i)
-        print("json_index",json_index)
-        print(i)
+        # print("json_index",json_index)
+        # print(i)
         if findOwner(lines[i])[0]:
             owner = findOwner(lines[i])[1]
-            print("owner",owner)
+            # print("owner",owner)
             json_index[0][list(json_index[0].keys())[0]]["Newquery"] = {"found":"true"}
             if owner not in new_dic.keys():
                 new_dic[owner] = [json_index[0]]
@@ -348,7 +366,7 @@ def get_data_from_msg(string):
             for k in new_dic[i][j].keys():
                 filterSize(new_dic[i][j][k])
                 present_json = new_dic[i][j][k]
-                print("present_json",present_json)
+                # print("present_json",present_json)
                 if "Newquery" in present_json.keys() and "endquery" not in present_json.keys():
                     prev_json = present_json
 
@@ -376,13 +394,13 @@ def get_data_from_msg(string):
                 
                 
                 prev_json  = new_dic[i][j][k]
-                print("prev_json",prev_json)
+                # print("prev_json",prev_json)
                 if i in jsonlist.keys():
                     jsonlist[i].append(prev_json)
                 else:
                     jsonlist[i] = [prev_json]
 
-    print(jsonlist)
+    # print(jsonlist)
     validlist = dict()
     for key in jsonlist.keys():
         for i,jobject in enumerate(jsonlist[key]):

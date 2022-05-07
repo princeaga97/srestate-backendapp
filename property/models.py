@@ -45,7 +45,16 @@ class Apartment(models.Model):
         #db_table = 'area'
 
 
-
+class EnquiryQuerys(models.Model):
+    broker_number = models.CharField(max_length=10)
+    mobile_number = models.CharField(max_length=10)
+    type = models.CharField(max_length=128)
+    estate_type = models.CharField(max_length=128)
+    budget = models.CharField(max_length=128)
+    area = models.CharField(max_length=128)
+    class Meta:
+        managed = True
+        #db_table = 'area'
 
 
 
