@@ -560,7 +560,6 @@ class DeleteEstateTypeAPIView(DestroyAPIView):
 
 
 @api_view(('POST',))
-@permission_classes([])
 @parser_classes([JSONParser,])
 @csrf_exempt
 def related_properties(request):
