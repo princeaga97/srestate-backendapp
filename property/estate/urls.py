@@ -19,5 +19,7 @@ urlpatterns = [
     path("estate_type/create/", views.CreateEstateTypeAPIView.as_view(),		  name="estate_type_create"),
     path("estate_type/update/<int:pk>/",views.UpdateEstateTypeAPIView.as_view(),name="update_estate_type"),
     path("estate_type/delete/<int:pk>/",views.DeleteEstateTypeAPIView.as_view(),name="delete_estate_type"),
-    path("estate/createbywp/", views.get_data_from_wp , name="estate_create_by_whatsapp")
+    path("estate/createbywp/", views.get_data_from_wp , name="estate_create_by_whatsapp"),
+    path("estate/get_related_property/", views.related_properties , name="estate_get")
+    
 ]

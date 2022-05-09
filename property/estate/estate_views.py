@@ -5,6 +5,7 @@ from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 import re
 from tabnanny import check
+from property import estate
 from rest_framework.generics import ListAPIView ,CreateAPIView,DestroyAPIView,UpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -558,5 +559,74 @@ class DeleteEstateTypeAPIView(DestroyAPIView):
 
 
 
+@api_view(('POST',))
+@permission_classes([])
+@parser_classes([JSONParser,])
+@csrf_exempt
+def related_properties(request):
+    if not "estate" in request.data.keys() and request.data["estate"]:
+        context = {
+            "msg": "Please Provide estates"
+        }
+        return Response(data=context, status=status.HTTP_400_BAD_REQUEST)
 
+    else:
+        findQuery = request.data["estate"]
+        if "estate_type" in findQuery.keys():
+            estate_type = findQuery["estate_type"]
+            if not isinstance(estate_type,list):
+                findQuery["estate_type"] = [estate_type]
+        if "area" in findQuery.keys():
+            area = findQuery["area"]
+            if not isinstance(area,list):
+                findQuery["area"] = [area]
+        if "estate_status" in findQuery.keys():
+            if findQuery["estate_status"] == "sell":
+                estate_status = "purchase"
+            elif findQuery["estate_status"] == "purchase":
+                estate_status = "sell"
+            elif findQuery["estate_status"] == "rent":
+                estate_status = "rent" 
+        if "budget" in findQuery.keys():
+            budget = findQuery["budget"]
+        if "floor_space" in findQuery.keys():
+            floor_space = findQuery["floor_space"]
+            floor_space = float(floor_space) + 0.1* float(floor_space)
+        if "number_of_bedrooms" in findQuery.keys():
+            number_of_bedrooms = findQuery["number_of_bedrooms"]
+    print(findQuery)
+    mycol = db.property_estate
+    if "flat" not in estate_type:
+        queryset= mycol.aggregate([
+            {
+                "$match" : { "$and": [ 
+                    {"$or": [{ "id": {"$ne":findQuery["id"]} }]},
+                    {"$or": [{ "area": {"$in" :findQuery["area"] }   }]},
+                    {"$or": [{ "estate_type": {"$in" :findQuery["estate_type"] }  }]},
+                    {"$or": [{ "estate_status": estate_status }]},
+                    {"$or": [{ "budget": { "$gte": 0, "$lte": budget } }, { "floor_space": { "$lte": floor_space } } ]}
+                ]} } ]
+            )
+    else:
+        queryset= mycol.aggregate([
+            {
+                "$match" : { "$and": [ 
+                    {"$or": [{ "id": {"$ne":findQuery["id"]} }]},
+                    {"$or": [{ "area": {"$in" :findQuery["area"] }   }]},
+                    {"$or": [{ "estate_type": {"$in" :findQuery["estate_type"] }  }]},
+                    {"$or": [{ "estate_status": estate_status }]},
+                    {"$or": [{ "number_of_bedrooms": number_of_bedrooms }]},
+                    {"$or": [{ "budget": { "$gte": 0, "$lte": budget } }, { "floor_space": { "$lte": floor_space } } ]}
+                ]} } ]
+            )
 
+    response ={"success":True,
+        "error":" "}
+    if queryset:
+        serializer = EstateSerializer(queryset,many = True)
+        if response["success"]:
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(data=response, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(data={}, status=status.HTTP_400_BAD_REQUEST)
