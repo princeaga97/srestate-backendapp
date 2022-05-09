@@ -604,6 +604,7 @@ def related_properties(request):
                     {"$or": [{ "area": {"$in" :findQuery["area"] }   }]},
                     {"$or": [{ "estate_type": {"$in" :findQuery["estate_type"] }  }]},
                     {"$or": [{ "estate_status": estate_status }]},
+                    {"$or":[{ "broker_mobile": request.user.mobile }]},
                     {"$or": [{ "budget": { "$gte": 0, "$lte": budget } }, { "floor_space": { "$lte": floor_space } } ]}
                 ]} } ]
             )
@@ -616,6 +617,7 @@ def related_properties(request):
                     {"$or": [{ "estate_type": {"$in" :findQuery["estate_type"] }  }]},
                     {"$or": [{ "estate_status": estate_status }]},
                     {"$or": [{ "number_of_bedrooms": number_of_bedrooms }]},
+                    {"$or":[{ "broker_mobile": request.user.mobile }]},
                     {"$or": [{ "budget": { "$gte": 0, "$lte": budget } }, { "floor_space": { "$lte": floor_space } } ]}
                 ]} } ]
             )
