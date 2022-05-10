@@ -248,7 +248,8 @@ class CreateBrokerAPIView(CreateAPIView):
 
 @api_view(('GET',))
 def get_balance(request):
-    return Response(request.user.balance, status=status.HTTP_200_OK)
+    context = {"balance":request.user.balance}
+    return Response(data=context, status=status.HTTP_200_OK)
     
 
 class CreateApartmentAPIView(CreateAPIView):
