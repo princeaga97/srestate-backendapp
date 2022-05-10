@@ -58,7 +58,7 @@ class ListAreaAPIView(ListAPIView):
             jobject = json.dumps(serializer.data)
             cache.setex(name= "area", value=jobject, time=60*60*24)
             data = serializer.data
-        return ReturnResponse(data=serializer.data, success=True, status=status.HTTP_200_OK)
+        return ReturnResponse(data=data, success=True, status=status.HTTP_200_OK)
 
 class CreateAreaAPIView(CreateAPIView):
     queryset = Area.objects.all()
