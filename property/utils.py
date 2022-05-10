@@ -36,7 +36,7 @@ def create_msg(jobject):
     return msg_string,query_json
 
 
-def ReturnResponse(status,errors=[],data=[],msg="",success=""):
+def ReturnResponse(status,errors=[],data=[],msg="",success=False):
     response = {
 
         "success":success,

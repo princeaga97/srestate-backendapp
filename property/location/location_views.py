@@ -1,3 +1,4 @@
+import imp
 import re
 from urllib.parse import quote_from_bytes
 from rest_framework.generics import ListAPIView
@@ -11,7 +12,7 @@ import pymongo
 from srestate.settings import mongo_uri,CACHES
 import json
 import redis
-
+from property.utils import ReturnResponse
 from property.location.location_serializers import ApartmentbulkSerializer, BrokerSerializer, CitySerializer, AreaSerializer, ApartmentSerializer ,ApartmentlistSerializer
 from property.models import Area, Broker,City, Apartment
 
@@ -51,46 +52,35 @@ class ListAreaAPIView(ListAPIView):
         if "area" in cache:
             areas = cache.get("area")
             areas = json.loads(areas)
-            if queryset.count()!= len(areas):
-                serializer = AreaSerializer(queryset,many = True)
-                print(serializer)
-                jobject = json.dumps(serializer.data)
-                cache.setex(name = request.user.mobile, value=jobject, time=60*60*24)
-                return Response(data=serializer.data, status=status.HTTP_200_OK)
-            else:
-                return Response(areas, status=status.HTTP_200_OK)
-        serializer = AreaSerializer(queryset,many = True)
-        jobject = json.dumps(serializer.data)
-        cache.setex(name= "area", value=jobject, time=60*60*24)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+            data  = areas
+        else:
+            serializer = AreaSerializer(queryset,many = True)
+            jobject = json.dumps(serializer.data)
+            cache.setex(name= "area", value=jobject, time=60*60*24)
+            data = serializer.data
+        return ReturnResponse(data=serializer.data, success=True, status=status.HTTP_200_OK)
 
 class CreateAreaAPIView(CreateAPIView):
     queryset = Area.objects.all()
     serializer_class = AreaSerializer
 
     def post(self,request):
-        serilizer = AreaSerializer(data=request.data)
+        serializer = AreaSerializer(data=request.data)
+        try:
+            if serializer.is_valid():
 
-        if serilizer.is_valid():
+                area,created = Area.objects.get_or_create(
+                    area_name = serializer.data["area_name"],
+                    city = City.objects.get(pk=serializer.data["city"]),
+                    pincode = serializer.data["pincode"]
+                )
+                area.save()
 
-            area,created = Area.objects.get_or_create(
-                area_name = serilizer.data["area_name"],
-                city = City.objects.get(pk=serilizer.data["city"]),
-                pincode = serilizer.data["pincode"]
-            )
-            area.save()
-
-            context = {
-                "msg":"Created Successfully"
-            }
-
-            return Response(context, status=status.HTTP_200_OK)
-        else:
-            context = {
-                "msg": serilizer.errors
-            }
-
-            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+                return ReturnResponse(success=True,msg="Created Successfully", status=status.HTTP_200_OK)
+            else:
+                return ReturnResponse(errors= serializer.errors,msg="", status=status.HTTP_200_OK)
+        except Exception as e:
+            return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
@@ -98,36 +88,25 @@ class UpdateAreaAPIView(UpdateAPIView):
     queryset = Area.objects.all()
     serializer_class = AreaSerializer
     def put(self,request,**kwargs):
-        serilizer = AreaSerializer(data=request.data)
+        serializer = AreaSerializer(data=request.data)
         id = kwargs.get('pk',0)
-        if serilizer.is_valid():
-            try:
-                area = Area.objects.get(pk = id)
-                area.area_name = serilizer.data["area_name"]
-                area.city = City.objects.get(pk=serilizer.data["city"])
-                area.pincode = serilizer.data["pincode"]
-                area.save()
+        try:
+            if serializer.is_valid():
+                try:
+                    area = Area.objects.get(pk = id)
+                    area.area_name = serializer.data["area_name"]
+                    area.city = City.objects.get(pk=serializer.data["city"])
+                    area.pincode = serializer.data["pincode"]
+                    area.save()
 
-                context = {
-                    "msg":"Updated Successfully"
-                }
+                    return ReturnResponse(success=True,msg="Updated Successfully", status=status.HTTP_200_OK)
+                except Exception as e:
+                    return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                return ReturnResponse(errors= serializer.errors,msg="", status=status.HTTP_200_OK)
+        except Exception as e:
+            return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-                return Response(context, status=status.HTTP_200_OK)
-
-            except Area.DoesNotExist:
-                context = {
-                    "msg": "Record Does Not Exists"
-                }
-
-                return Response(context, status=status.HTTP_200_OK)
-
-
-        else:
-            context = {
-                "msg": serilizer.errors
-            }
-
-            return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
 class DeleteAreaAPIView(DestroyAPIView):
     queryset = Area.objects.all()
@@ -180,7 +159,6 @@ class CreateBulkApartmentAPIView(CreateAPIView):
 
     def post(self,request):
         context = []
-        print("hello")
         apartmentlist = request.data["apartmentlist"]
         for data in apartmentlist:
             print(data)
@@ -205,10 +183,11 @@ class CreateBrokerAPIView(CreateAPIView):
     serializer_class = BrokerSerializer
 
     def post(self,request):
-        serilizer = BrokerSerializer(data=request.data)
+        serializer = BrokerSerializer(data=request.data)
 
-        if serilizer.is_valid():
+        if serializer.is_valid():
             try:
+
                 mycol = db.UserManagement_user
                 updatestmt = (
                     {"mobile":request.user.mobile},
@@ -221,9 +200,9 @@ class CreateBrokerAPIView(CreateAPIView):
                 updatestmt = (
                     {"mobile":request.user.mobile},
                     {"$set":{
-                        "name": serilizer.data["name"],
-                        "area": serilizer.data["area"],
-                        "estate_type": serilizer.data["estate_type"],
+                        "name": serializer.data["name"],
+                        "area": serializer.data["area"],
+                        "estate_type": serializer.data["estate_type"],
                     }}
                 )
                 broker = mycol.update_one(*updatestmt)
@@ -241,7 +220,7 @@ class CreateBrokerAPIView(CreateAPIView):
 
         else:
             context = {
-                "msg": serilizer.errors
+                "msg": serializer.errors
             }
 
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
@@ -249,7 +228,7 @@ class CreateBrokerAPIView(CreateAPIView):
 @api_view(('GET',))
 def get_balance(request):
     context = {"balance":request.user.balance}
-    return Response(data=context, status=status.HTTP_200_OK)
+    return ReturnResponse(success=True,data=context, status=status.HTTP_200_OK)
     
 
 class CreateApartmentAPIView(CreateAPIView):
@@ -257,12 +236,12 @@ class CreateApartmentAPIView(CreateAPIView):
     serializer_class = ApartmentSerializer
 
     def post(self,request):
-        serilizer = ApartmentSerializer(data=request.data)
+        serializer = ApartmentSerializer(data=request.data)
 
-        if serilizer.is_valid():
+        if serializer.is_valid():
             apartment,created = Apartment.objects.get_or_create(
-                apartment_name = serilizer.data["apartment_name"],
-                area = Area.objects.get(pk=serilizer.data["area"]),
+                apartment_name = serializer.data["apartment_name"],
+                area = Area.objects.get(pk=serializer.data["area"]),
             )
             apartment.save()
 
@@ -274,7 +253,7 @@ class CreateApartmentAPIView(CreateAPIView):
 
         else:
             context = {
-                "msg": serilizer.errors
+                "msg": serializer.errors
             }
 
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
@@ -284,13 +263,13 @@ class UpdateApartmentAPIView(UpdateAPIView):
     queryset = Apartment.objects.all()
     serializer_class = ApartmentSerializer
     def put(self,request,**kwargs):
-        serilizer = ApartmentSerializer(data=request.data)
+        serializer = ApartmentSerializer(data=request.data)
         id = kwargs.get('pk',0)
-        if serilizer.is_valid():
+        if serializer.is_valid():
             try:
                 apartment = Apartment.objects.get(pk = id)
-                apartment.apartment_name = serilizer.data["apartment_name"]
-                apartment.area = Area.objects.get(pk=serilizer.data["area"])
+                apartment.apartment_name = serializer.data["apartment_name"]
+                apartment.area = Area.objects.get(pk=serializer.data["area"])
                 apartment.save()
 
                 context = {
@@ -308,7 +287,7 @@ class UpdateApartmentAPIView(UpdateAPIView):
 
         else:
             context = {
-                "msg": serilizer.errors
+                "msg": serializer.errors
             }
 
             return Response(context, status=status.HTTP_201_CREATED)

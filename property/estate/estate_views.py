@@ -338,7 +338,7 @@ class CreateEstateAPIView(CreateAPIView):
                 return ReturnResponse(success=True,msg="Created Successfully", status=status.HTTP_200_OK)
             else:
 
-                return ReturnResponse(errors= serializer.errors,msg="Created Successfully", status=status.HTTP_200_OK)
+                return ReturnResponse(errors= serializer.errors,msg="", status=status.HTTP_200_OK)
         except Exception as e:
             return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -389,7 +389,7 @@ class CreateEstateStatusAPIView(CreateAPIView):
 
                 return ReturnResponse(success=True,msg="Created Successfully", status=status.HTTP_200_OK)
             else:
-                return ReturnResponse(errors= serializer.errors,msg="Created Successfully", status=status.HTTP_200_OK)
+                return ReturnResponse(errors= serializer.errors,msg="", status=status.HTTP_200_OK)
         except Exception as e:
             return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -412,7 +412,7 @@ class UpdateEstateStatusAPIView(UpdateAPIView):
                 except Exception as e:
                     return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             else:
-                return ReturnResponse(errors= serializer.errors,msg="Updated Successfully", status=status.HTTP_200_OK)
+                return ReturnResponse(errors= serializer.errors,msg="", status=status.HTTP_200_OK)
         except Exception as e:
             return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -484,13 +484,9 @@ class CreateEstateTypeAPIView(CreateAPIView):
                 )
                 estate_type.save()
 
-                context = {
-                    "msg":"Created Successfully"
-                }
-
                 return ReturnResponse(success=True,msg="Created Successfully", status=status.HTTP_200_OK)
             else:
-                return ReturnResponse(errors= serializer.errors,msg="Created Successfully", status=status.HTTP_200_OK)
+                return ReturnResponse(errors= serializer.errors,msg="", status=status.HTTP_200_OK)
         except Exception as e:
             return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -512,7 +508,7 @@ class UpdateEstateTypeAPIView(UpdateAPIView):
                 except Exception as e:
                         return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             else:
-                return ReturnResponse(errors= serializer.errors,msg="Updated Successfully", status=status.HTTP_200_OK)
+                return ReturnResponse(errors= serializer.errors,msg="", status=status.HTTP_200_OK)
         except Exception as e:
             return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
