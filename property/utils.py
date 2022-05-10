@@ -1,4 +1,6 @@
 import uuid
+from rest_framework.response import Response
+from rest_framework import status
 from property.message_mapping import MSG_MAPPING ,QUERY_MAPPING
 
 def check_balance(request,listestate):
@@ -34,3 +36,12 @@ def create_msg(jobject):
     return msg_string,query_json
 
 
+def ReturnResponse(status,errors=[],data=[],msg="",success=""):
+    response = {
+
+        "success":success,
+        "error":errors,
+        "message":msg,
+        "data":data,
+    }
+    return Response(data= response,status = status)
