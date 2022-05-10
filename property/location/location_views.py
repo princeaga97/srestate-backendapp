@@ -206,9 +206,17 @@ class CreateBrokerAPIView(CreateAPIView):
                     }}
                 )
                 broker = mycol.update_one(*updatestmt)
-
+                print(broker.acknowledged)
                 if broker.raw_result["n"] == 0:
-                    print(broker.raw_result)
+                    updatestmt = (
+                    {"mobile":request.user.mobile},
+                    {"$set":{
+                        "name": serializer.data["name"],
+                        "area": serializer.data["area"],
+                        "estate_type": serializer.data["estate_type"],
+                    }},
+                    {"upsert":True})
+                    broker = mycol.update_one(*updatestmt)
 
                 context = {
                     "msg":"Broker Created Successfully"
