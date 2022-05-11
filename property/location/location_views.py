@@ -183,55 +183,48 @@ class CreateBrokerAPIView(CreateAPIView):
     serializer_class = BrokerSerializer
 
     def post(self,request):
-        serializer = BrokerSerializer(data=request.data)
-
-        if serializer.is_valid():
-            try:
-
-                mycol = db.UserManagement_user
-                updatestmt = (
-                    {"mobile":request.user.mobile},
-                    {"$set":{
-                        "balance": 1000,
-                    }}
-                )
-                broker = mycol.update_one(*updatestmt)
-                mycol = db.property_broker
-                updatestmt = (
-                    {"mobile":request.user.mobile},
-                    {"$set":{
-                        "name": serializer.data["name"],
-                        "area": serializer.data["area"],
-                        "estate_type": serializer.data["estate_type"],
-                    }}
-                )
-                broker = mycol.update_one(*updatestmt)
-                print(broker.acknowledged)
-                if broker.raw_result["n"] == 0:
+        try:
+            serializer = BrokerSerializer(data=request.data)
+            if serializer.is_valid():
+            
+                    mycol = db.property_broker
                     updatestmt = (
-                    {"mobile":request.user.mobile},
-                    {"$set":{
-                        "name": serializer.data["name"],
-                        "area": serializer.data["area"],
-                        "estate_type": serializer.data["estate_type"],
-                    }},
-                    {"upsert":True})
+                        {"mobile":request.user.mobile},
+                        {"$set":{
+                            "name": serializer.data["name"],
+                            "area": serializer.data["area"],
+                            "estate_type": serializer.data["estate_type"],
+                        }}
+                    )
                     broker = mycol.update_one(*updatestmt)
+                    if broker.raw_result["n"] == 0:
+                        updatestmt = (
+                        {"mobile":request.user.mobile},
+                        {"$set":{
+                            "name": serializer.data["name"],
+                            "area": serializer.data["area"],
+                            "estate_type": serializer.data["estate_type"],
+                        }}
+                        )
+                        broker = mycol.update_one(
+                            *updatestmt, upsert= True)
+                        mycol = db.UserManagement_user
+                        updatestmt = (
+                            {"mobile":request.user.mobile},
+                            {"$set":{
+                                "balance": 1000,
+                            }}
+                        )
+                        broker = mycol.update_one(*updatestmt)
+                        msg="Created Successfully"
+                    else:
+                        msg = "Updated Successfully"
+                    return ReturnResponse(success=True,msg=msg, status=status.HTTP_200_OK)
+            else:
+                return ReturnResponse(errors= serializer.errors,msg="", status=status.HTTP_200_OK)
+        except Exception as e:
+            return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-                context = {
-                    "msg":"Broker Created Successfully"
-                }
-
-                return Response(context, status=status.HTTP_200_OK)
-            except Exception as e:
-                return Response("Exception "+str(e), status=status.HTTP_400_BAD_REQUEST)
-
-        else:
-            context = {
-                "msg": serializer.errors
-            }
-
-            return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(('GET',))
 def get_balance(request):
@@ -244,61 +237,44 @@ class CreateApartmentAPIView(CreateAPIView):
     serializer_class = ApartmentSerializer
 
     def post(self,request):
-        serializer = ApartmentSerializer(data=request.data)
+        try:
+            serializer = ApartmentSerializer(data=request.data)
+            if serializer.is_valid():
+                apartment,created = Apartment.objects.get_or_create(
+                    apartment_name = serializer.data["apartment_name"],
+                    area = Area.objects.get(pk=serializer.data["area"]),
+                )
+                apartment.save()
 
-        if serializer.is_valid():
-            apartment,created = Apartment.objects.get_or_create(
-                apartment_name = serializer.data["apartment_name"],
-                area = Area.objects.get(pk=serializer.data["area"]),
-            )
-            apartment.save()
-
-            context = {
-                "msg":"Created Successfully"
-            }
-
-            return Response(context, status=status.HTTP_200_OK)
-
-        else:
-            context = {
-                "msg": serializer.errors
-            }
-
-            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+                return ReturnResponse(success=True,msg="Created Successfully", status=status.HTTP_200_OK)
+            else:
+                return ReturnResponse(errors= serializer.errors,msg="", status=status.HTTP_200_OK)
+        except Exception as e:
+            return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UpdateApartmentAPIView(UpdateAPIView):
     queryset = Apartment.objects.all()
     serializer_class = ApartmentSerializer
     def put(self,request,**kwargs):
-        serializer = ApartmentSerializer(data=request.data)
-        id = kwargs.get('pk',0)
-        if serializer.is_valid():
-            try:
-                apartment = Apartment.objects.get(pk = id)
-                apartment.apartment_name = serializer.data["apartment_name"]
-                apartment.area = Area.objects.get(pk=serializer.data["area"])
-                apartment.save()
+        try:
+            serializer = ApartmentSerializer(data=request.data)
+            id = kwargs.get('pk',0)
+            if serializer.is_valid():
+                try:
+                    apartment = Apartment.objects.get(pk = id)
+                    apartment.apartment_name = serializer.data["apartment_name"]
+                    apartment.area = Area.objects.get(pk=serializer.data["area"])
+                    apartment.save()
 
-                context = {
-                    "msg":"Updated Successfully"
-                }
+                    return ReturnResponse(success=True,msg="Updated Successfully", status=status.HTTP_200_OK)
+                except Exception as e:
+                    return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                return ReturnResponse(errors= serializer.errors,msg="", status=status.HTTP_200_OK)
 
-                return Response(context, status=status.HTTP_200_OK)
-
-            except Apartment.DoesNotExist:
-                context = {
-                    "msg": "Record Does Not Exists"
-                }
-
-                return Response(context, status=status.HTTP_200_OK)
-
-        else:
-            context = {
-                "msg": serializer.errors
-            }
-
-            return Response(context, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class DeleteApartmentAPIView(DestroyAPIView):
     queryset = Apartment.objects.all()
