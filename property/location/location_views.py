@@ -141,17 +141,31 @@ class ListApartmentAPIView(ListAPIView):
     queryset = Apartment.objects.filter(is_deleted = 0)
     serializer_class = ApartmentlistSerializer
     def get(self,request):
-        client = pymongo.MongoClient(mongo_uri)
-        db = client['your-db-name']
-        mycol = db.property_apartment
-        if "area" in request.data:
-            queryset = mycol.find({"is_deleted":False,"area":request.data["area"]})
-        else:
-            queryset = mycol.find({"is_deleted":False})
-        serializer = ApartmentSerializer(queryset,many = True)
-        jobject = json.dumps(serializer.data)
-        cache.setex(name= "area_"+str(request.data["area"]), value=jobject, time=60*60*24)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        try:
+            client = pymongo.MongoClient(mongo_uri)
+            db = client['your-db-name']
+            mycol = db.property_apartment
+            if "area" in request.data:
+                cache_key = "area_"+str(request.data["area"])
+                if cache_key in cache:
+                    areas = cache.get(cache_key)
+                    areas = json.loads(areas)
+                    data  = areas
+                else:
+                    queryset = mycol.find({"is_deleted":False},{"area": {"$in":request.data["area"]}})
+                    serializer = ApartmentSerializer(queryset,many = True)
+                    jobject = json.dumps(serializer.data)
+                    cache.setex(name= cache_key, value=jobject, time=60*60*24)
+                    data = serializer.data
+            else:
+                queryset = mycol.find({"is_deleted":False})
+                serializer = ApartmentSerializer(queryset,many = True)
+                data = serializer.data
+        
+            return ReturnResponse(success=True,data=data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class CreateBulkApartmentAPIView(CreateAPIView):
     queryset = Apartment.objects.all()
