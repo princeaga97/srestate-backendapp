@@ -1,15 +1,11 @@
-from curses import keyname
-from email import message
-from email.policy import HTTP
-from pydoc import cli
-from tabnanny import check
-from property import estate
 from rest_framework.generics import ListAPIView ,CreateAPIView,DestroyAPIView,UpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework.parsers import MultiPartParser,FormParser ,JSONParser
-from rest_framework.decorators import api_view ,authentication_classes, permission_classes ,parser_classes
+from rest_framework.decorators import api_view ,authentication_classes, permission_classes ,parser_classes ,renderer_classes
 import json
+from django.http import JsonResponse
 from srestate.settings import mongo_uri , CACHES
 from property.estate.wputils import get_data_from_msg
 from django.views.decorators.csrf import csrf_exempt
@@ -35,6 +31,17 @@ def modify_input_for_multiple_files(estate_id, image):
     dict['image'] = image
     return dict
 
+
+@csrf_exempt
+@renderer_classes((TemplateHTMLRenderer, JSONRenderer))
+def demo_reply(request):
+    print(request.POST["Body"])
+    From = request.POST["From"][12:]
+    print(From)
+    if request.POST["Body"] is not None:
+        if request.POST["Body"].lower() == "hi":
+            send_whatsapp_msg(From,"good effort")
+    return JsonResponse({"data": request.POST["Body"]},status = status.HTTP_200_OK)
 
 
 @api_view(('POST',))
