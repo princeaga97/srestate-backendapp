@@ -29,7 +29,7 @@ SECRET_KEY = 'os*+e_tp3#-yj#5lr^da=2%4!omhenb%$@-emahbe63+qjpa-m'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["srestateapi.herokuapp.com","127.0.0.1"]
+ALLOWED_HOSTS = ["django-env.eba-z5zkmnuv.us-west-2.elasticbeanstalk.com","srestateapi.herokuapp.com","127.0.0.1","b8a9-157-119-213-122.in.ngrok.io"]
 
 
 # Application definition
