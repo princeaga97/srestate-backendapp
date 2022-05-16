@@ -47,6 +47,7 @@ def demo_reply(request):
             if data:
                 listestate = list(data)
                 messageString = create_msg(listestate)
+                send_whatsapp_msg(From,messageString)
     return JsonResponse({"data": messageString},status = status.HTTP_200_OK)
 
 
