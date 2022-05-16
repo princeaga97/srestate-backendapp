@@ -41,7 +41,13 @@ def demo_reply(request):
     if request.POST["Body"] is not None:
         if request.POST["Body"].lower() == "hi":
             send_whatsapp_msg(From,"good effort")
-    return JsonResponse({"data": request.POST["Body"]},status = status.HTTP_200_OK)
+        elif "bhk" in request.POST["Body"].lower():
+            mycol = db.property_estate
+            data = mycol.find({"number_of_bedrooms":int(request.POST["Body"][0])})
+            if data:
+                listestate = list(data)
+                messageString = create_msg(listestate)
+    return JsonResponse({"data": messageString},status = status.HTTP_200_OK)
 
 
 @api_view(('POST',))
