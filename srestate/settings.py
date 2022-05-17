@@ -102,7 +102,8 @@ CACHES = {
     }
 }
 
-mongo_uri =  'mongodb+srv://srestateapi:' + str(urllib.parse.quote("changingbyte@123"))  +'@cluster0.0zdkv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
+mongo_uri = "mongodb://srestatedev1:"+str(urllib.parse.quote("changingbyte123$"))+"@docdb-2022-05-17-05-48-47.cluster-cckiz4syulr1.us-west-2.docdb.amazonaws.com:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
+# mongo_uri =  'mongodb+srv://srestateapi:' + str(urllib.parse.quote("changingbyte@123"))  +'@cluster0.0zdkv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
 
 DATABASES = {
         'default': {
