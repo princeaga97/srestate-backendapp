@@ -27,6 +27,8 @@ def read_json_related(findQuery):
         area = findQuery["area"]
         if not isinstance(area,list):
             findQuery["area"] = [area]
+    else:
+        findQuery["area"] = []
     if "estate_status" in findQuery.keys():
         if isinstance(findQuery["estate_status"],list):
             findQuery["estate_status"] = findQuery["estate_status"][0]
@@ -66,12 +68,13 @@ def find_related_db(mycol,findQuery):
         queryset= mycol.aggregate([
             {
                 "$match" : { "$and": [ 
-                    {"$or": [{ "id": {"$ne":findQuery["id"]} }]},
-                    {"$or": [{ "area": {"$in" :findQuery["area"] }   }]},
-                    {"$or": [{ "estate_type": {"$in" :findQuery["estate_type"] }  }]},
-                    {"$or": [{ "estate_status": estate_status }]},
-                    {"$or":[{ "broker_mobile": findQuery["broker_mobile"] }]},
-                    {"$or": [{ "budget": { "$gte": 0, "$lte": budget } }, { "floor_space": { "$lte": floor_space } } ]}
+                    {"$and": [{ "id": {"$ne":findQuery["id"]} },{ "estate_status": estate_status },{ "broker_mobile": findQuery["broker_mobile"] }]},
+                    {"$or": [
+                      {"$or" : [ { "area": {"$in" :findQuery["area"] }}]},
+                      {"$or" :[{ "estate_type": {"$in" :findQuery["estate_type"] }}]},
+                      {"$or" : [ { "floor_space": {"$lte": floor_space } }]},
+                      {"$or" :[{ "budget": {"$lte": budget } }]}
+                    ]}
                 ]} } ]
             )
     else:
