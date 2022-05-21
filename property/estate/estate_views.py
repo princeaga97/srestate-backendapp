@@ -56,13 +56,13 @@ def demo_reply(request):
                 if "broker_mobile" in findQuery.keys() and findQuery["broker_mobile"]:
                     findQuery["broker_mobile"] = findQuery["broker_mobile"][0]
                 findQuery["id"] =0
+                if "bhk" in request.POST["Body"] and "estate_type" not in findQuery:
+                    findQuery["estate_type"] = ['flat']
                 mycol = db.property_estate
                 queryset = find_related_db(mycol,findQuery)
                 if queryset:
                     listestate = list(queryset)
-                    print(listestate)
                     messageString = create_msg(listestate)
-                    print(messageString)
                     send_whatsapp_msg(From,messageString)
     return JsonResponse({"data": messageString},status = status.HTTP_200_OK)
 
