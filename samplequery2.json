@@ -1,157 +1,34 @@
 {
-    "7984699363": [
+    "7984702696": [
         {
-            "Mobile": [
-                "7984699363",
-                "7984699363"
-            ],
             "Newquery": {
                 "found": "true"
             },
             "Others": [
-                ""
-            ],
-            "endquery": "true"
-        },
-        {
-            "Mobile": [
-                "7984699363",
-                "7984699363"
-            ],
-            "Newquery": {
-                "found": "true"
-            },
-            "Others": [
-                ""
-            ],
-            "endquery": "true"
-        },
-        {
-            "Mobile": [
-                "7984699363",
-                "7984699363"
-            ],
-            "Others": [
-                ""
-            ]
-        }
-    ],
-    "8460280059": [
-        {
-            "Mobile": [
-                "8460280059"
-            ],
-            "Others": [
                 "",
-                "2Z PROPERTY SOLUTION",
-                "ANY HAVE CALL",
-                "SORROUNDING SURAT",
-                "FOR PAPER FACTORY"
+                "1 april ",
+                "\ud83d\udc49rent bught 25000 \u20b9"
             ],
-            "PropertyType": [
-                "LAND"
+            "area": [
+                "vesu",
+                "citylight"
             ],
-            "Rooms": [],
-            "Size": [
-                "6 VINGA"
+            "broker_mobile": [
+                "7984702696",
+                "7984702696"
             ],
-            "Type": [
-                "PURCHASE"
-            ]
-        }
-    ],
-    "9824739341": [
-        {
-            "Area": [
-                "UDHANA"
+            "budget": [
+                25000
             ],
-            "Mobile": [
-                "9824739341"
+            "endquery": "true",
+            "estate_status": [
+                "rent"
             ],
-            "Others": [
-                "",
-                "COLL AND MESSAGE PERSONALLY ",
-                "63 \u00d7 ",
-                "19 ",
-                "3.50.LAKH ",
-                "115 = ",
-                "SHREE MAHALAXMI REAL ESTATE ",
-                "51 \u00d7 ",
-                "DILIP JARIWALA ",
-                "BROKERAGE SIDE BY SIDE "
+            "estate_type": [
+                "flat"
             ],
-            "PropertyType": [
-                "GODOWN",
-                "SHED"
-            ],
-            "Rooms": [],
-            "Size": [
-                5865,
-                7245,
-                "5865.SQFT",
-                "7245.SQFT",
-                "13110. SQFT"
-            ],
-            "Type": [
-                "RENT"
-            ]
-        },
-        {
-            "Area": [
-                "KADODARA"
-            ],
-            "Mobile": [
-                "9824739341"
-            ],
-            "Others": [
-                "",
-                "BROKERAGE SIDE BY SIDE",
-                "SHREE MAHALAXMI REAL ESTATE ",
-                "DASTAN RAILWAY FATAK",
-                "DILIP JARIWALA ",
-                "COLL AND MESSAGE PERSONALLY",
-                "TATITHIYA"
-            ],
-            "PropertyType": [
-                "LEND"
-            ],
-            "Rooms": [],
-            "Size": [
-                "9000.SQ. YARDS",
-                "12000. SQ. YARDS",
-                "9000. SQ",
-                "3200. SQ. YARDS"
-            ],
-            "Type": [
-                "SALE"
-            ]
-        },
-        {
-            "Mobile": [
-                "9824739341"
-            ],
-            "Others": [
-                "",
-                "BROKERAGE SIDE BY SIDE ",
-                "PRICE. ",
-                "SHREE MAHALAXMI REAL ESTATE ",
-                "DILIP JARIWALA ",
-                "BEST FOR ",
-                "1 CONTRACTION ",
-                "90 SIZE ",
-                "COLL AND MESSAGE PERSONALLY "
-            ],
-            "PropertyType": [
-                "HOUSE",
-                "SHED"
-            ],
-            "Rooms": [],
-            "Size": [
-                5400,
-                "600 VAR"
-            ],
-            "Type": [
-                "SELL"
+            "number_of_bedrooms": [
+                1
             ]
         }
     ]

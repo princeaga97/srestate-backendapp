@@ -8,7 +8,7 @@ from property.location.location_views import db
 
 required_fields = {
     "area":[],
-    "type":[],
+    "estate_status":[],
     "apartment":[],
     "furniture":["WITH FULL FURNITURE", "Fully Furnished","Semi Furnished","luxurious furnished","furnished","Renovated"],
     "property_type":[],
@@ -16,14 +16,14 @@ required_fields = {
 
 mapping_db = {
     "area":["area_name",db.property_area.find({},{"area_name":1,"_id":0})],
-    "type":["estate_status_name",db.property_estatestatus.find({},{"estate_status_name":1,"_id":0})],
+    "estate_status":["estate_status_name",db.property_estatestatus.find({},{"estate_status_name":1,"_id":0})],
     "apartment":["apartment_name",db.property_apartment.find({},{"apartment_name":1,"_id":0})],
     "property_type":["type_name",db.property_estate_type.find({},{"type_name":1,"_id":0})]
 }
 
 def findOptimized(required_fields,mapping_db):
     for key,value  in mapping_db.items(): 
-        required_fields[key] = [ x[value[0]].upper() for x in   list(value[1]) ]
+        required_fields[key] = [ x[value[0]].lower() for x in   list(value[1]) ]
     
 
     return required_fields
@@ -43,20 +43,30 @@ def findMobile(inputstring):
     else:
         return []
 
+def findBigNumbers(inputstring):
+    pattern = re.compile(r"[1-9]\d{3,10}")
+    if re.search(pattern=pattern, string=inputstring) :
+        numbers = re.findall(pattern=pattern,string= inputstring)
+        numbers = [int(x) for x in numbers]
+        return numbers
+    else:
+        return []
+
 def find_match(SizeInput,size_matches):
     if size_matches[0] in SizeInput:
         return SizeInput
     sizelist = SizeInput.split(" ")
     matches = []
+    mul =1
     for i in sizelist:
-        i = i.strip()
-        if checkisdigit(i.strip(".\n")):
-            matches.append(i)
-        elif i in size_matches:
-            matches.append(i)
-    
+        if checkisdigit(i):
+            matches.append(float(i))
+        elif i in ["lk","Lac","lakh","lak","lacs","lakhs"]:
+            mul = 100000
+        elif i in ["cr"]:
+            mul = 10000000
     if len(matches):
-        return " ".join(matches)
+        return matches[0]*mul
 
 
 def findOwner(input):
@@ -85,8 +95,8 @@ def cleaningLine(i):
     for k in i:
         fv = ["*",",","@","-"]
         if k in fv:
-            i = i.replace(k," ")
-        if "SQFT" in i.upper():
+            i = i.replace(k,"")
+        if "sqft" in i.lower():
             i = i.replace(":","")
     
     return i
@@ -95,7 +105,7 @@ def findHouse(input):
     pattern = re.compile(r"\d{1}[-\.\s\,][-\.\s\,]}\d{0,1}[-\.\s]??\D{8}|\d{1,6}\D{3,20}|\d{1,6}[,\.]\d{1,6}[,\.]\s{0,1}\D{1,10}|\d{1,6}[,\.]\s{0,1}\D{1,10}")
     #pattern = re.compile(r"|\d{3}[-\.\,\s]{2}??\D{4,5}")
     houselist = re.findall(pattern=pattern, string=input)
-    false_values = ["+", ":","PM]","AM]"]
+    false_values = ["+", ":","pm]","am]"]
     filterhouse = []
     for i in false_values:
         filterhouse = filterhouse + [ x for x in houselist if i  in x  ]
@@ -136,40 +146,48 @@ def removeX(input):
 
 def filterRooms(mydict):
     room_list = []
-    for j,i in enumerate(mydict["Rooms"]):
-        bhk_index = i.find("BHK")
+    for j,i in enumerate(mydict["number_of_bedrooms"]):
+        bhk_index = i.find("bhk")
         if bhk_index!= -1:
-            mydict["Rooms"][j]  = i[:bhk_index+3]
-            mydict["Rooms"][j].replace(" ","")
-            room_list.append(mydict["Rooms"][j])
+            mydict["number_of_bedrooms"][j]  = i[:bhk_index]
+            mydict["number_of_bedrooms"][j] = mydict["number_of_bedrooms"][j].replace(" ","")
+            room_list.append(int(mydict["number_of_bedrooms"][j]))
 
         else:
             size_matches = ["Sq. Yards" ,"sq yard","Sq yards","sq","carpet","ft","Sf","SFT","SB","SQFT","var", "Square","feet","vaar","VINGA"]
-            size_matches = [ x.upper() for x in size_matches ]
+            size_matches = [ x.lower() for x in size_matches ]
             price_matches = ["lk","Lac","lakh", "cr","lak","lacs"]
-            prfindTypeice_matches = [ x.upper() for x in price_matches ]
+            price_matches = [ x.lower() for x in price_matches ]
             
             
-            if any(x in mydict["Rooms"][j] for x in size_matches):
-                if "Size" in mydict.keys():
-                    mydict["Size"].append( find_match(mydict["Rooms"][j],size_matches))
+            if any(x in mydict["number_of_bedrooms"][j] for x in size_matches):
+                size_match = find_match(mydict["number_of_bedrooms"][j],size_matches)
+                if "floor_space" in mydict.keys():
+                    mydict["floor_space"].append(size_match)
                 else:
-                    mydict["Size"] = [ find_match(mydict["Rooms"][j],size_matches)]
+                    mydict["floor_space"] = [size_match]
         
-            elif any(x in mydict["Rooms"][j] for x in price_matches):
-                if "Budget" in mydict.keys():
-                    mydict["Budget"].append(find_match(mydict["Rooms"][j],price_matches))
+            elif any(x in mydict["number_of_bedrooms"][j] for x in price_matches):
+                if "budget" in mydict.keys():
+                    mydict["budget"].append(find_match(mydict["number_of_bedrooms"][j],price_matches))
                 else:
-                    mydict["Budget"] = [find_match(mydict["Rooms"][j],price_matches)]
+                    mydict["budget"] = [find_match(mydict["number_of_bedrooms"][j],price_matches)]
                 
             else:
                 if "Others" in mydict.keys():
-                    mydict["Others"].append(mydict["Rooms"][j])
+                    mydict["Others"].append(mydict["number_of_bedrooms"][j])
                 else:
-                    mydict["Others"] = [mydict["Rooms"][j]]
-                
-        
-    mydict["Rooms"] = room_list
+                    mydict["Others"] = [mydict["number_of_bedrooms"][j]]
+    mydict["number_of_bedrooms"] = room_list
+def filterOthers(mydict):
+    if "Others" in mydict.keys():
+        for j,i in enumerate(mydict["Others"]):
+            if findBigNumbers(mydict["Others"][j]) :
+                if "budget" in mydict.keys():
+                    mydict["budget"] + findBigNumbers(mydict["Others"][j])
+                else:
+                    mydict["budget"] = findBigNumbers(mydict["Others"][j])
+
 
 def findSize(input):
     pattern = re.compile(r"\d{1,4}\s{0,1}[X,x,×]\s{0,1}\d{1,4}")
@@ -185,14 +203,14 @@ def findBudget(input):
     keywords=["lk","Lac","lakh", "cr"]
     inputlist = input.split(" ")
     typelist = []
-    keywords = [ x.upper() for x in keywords ]
+    keywords = [ x.lower() for x in keywords ]
     for i in keywords:
         if i in inputlist:
             typelist.append(i)
     return typelist
 
 def findType(input):
-    keywords=["PURCHASE","LENA","RENT", "SELL","KHARID","SALE"]
+    keywords=["purchase","lena","rent", "sell","kharid","sale"]
     inputlist = input.split(" ")
     typelist = []
     for i in keywords:
@@ -209,7 +227,7 @@ rf =  findOptimized(required_fields,mapping_db)
 def findArea(input):
     keywords=["VESU","CITYLIGHT","PIPILOD", "NEW CITYLIGHT ROAD","PARLE POINT","Ghod Dod","Bhatar Road","v I P road","vIP road","ring road","palanpur","palgam","new city light","Mansarovar","PARVAT PATIA","GODADARA","althan","CITy light","Pandesara GIDC","adajan","Ghod Dhod Road","vackanja","Pal","Athwalines","Udhana","Kadodara","Udhna"]
     inputlist = input.split(" ")
-    keywords = [ x.upper() for x in keywords ]
+    keywords = [ x.lower() for x in keywords ]
     typelist = []
     for i in keywords:
         if i in inputlist or i in input:
@@ -220,10 +238,10 @@ def findArea(input):
 
 def findSociety(input):
     inputlist = input.split(" ")
-    keywords = [ x.upper() for x in rf["apartment"] ]
+    keywords = [ x.lower() for x in rf["apartment"] ]
     typelist = []
     for i in keywords:
-        so = fuzz.ratio(i,inputlist)
+        # so = fuzz.ratio(i,inputlist)
         if i in inputlist or i in input:
             typelist.append(i)
     
@@ -233,7 +251,7 @@ def findFurntiure(input):
     keywords=["WITH FULL FURNITURE", "Fully Furnished","Semi Furnished","luxurious furnished","furnished","Renovated"]
     inputlist = input.split(" ")
     typelist = []
-    keywords = [ x.upper() for x in keywords ]
+    keywords = [ x.lower() for x in keywords ]
     for i in keywords:
         if i in inputlist or i in input:
             typelist.append(i)
@@ -245,7 +263,7 @@ def findPropertyType(input):
     inputlist = input.split(" ")
     #print(inputlist)
     typelist = []
-    keywords = [ x.upper() for x in keywords ]
+    keywords = [ x.lower() for x in keywords ]
     for i in keywords:
         if i in inputlist or i in input:
             typelist.append(i)
@@ -263,7 +281,7 @@ def findALlRequiremnts(lines,start_index):
             #myDict[prevHouse]["Newquery"] = "true"
             return myDict, start_index+j
         else:
-            i= cleaningLine(i).upper() 
+            i= cleaningLine(i).lower() 
             #print(len(findArea(i)) , len(findType(i)) , findHouse(i) ,len(findPropertyType(i)), findSociety(i))
             if i == "\n":
                 #print("blank")
@@ -274,41 +292,41 @@ def findALlRequiremnts(lines,start_index):
             else:
                 if len(findArea(i)) or  len(findType(i)) or len(findHouse(i)) or len(findPropertyType(i)) or len(findSociety(i)) or len(findMobile(i)) :
                     if len(findHouse(i)):
-                        if "Rooms" in myDict[prevHouse].keys():
-                            myDict[prevHouse]["Rooms"] = myDict[prevHouse]["Rooms"]+ list(findHouse(i))
+                        if "number_of_bedrooms" in myDict[prevHouse].keys():
+                            myDict[prevHouse]["number_of_bedrooms"] = myDict[prevHouse]["number_of_bedrooms"]+ list(findHouse(i))
                         else:
-                            myDict[prevHouse]["Rooms"] = list(findHouse(i))
-                    if "Area" in myDict[prevHouse].keys():
-                        myDict[prevHouse]["Area"] = myDict[prevHouse]["Area"]+findArea(i)
+                            myDict[prevHouse]["number_of_bedrooms"] = list(findHouse(i))
+                    if "area" in myDict[prevHouse].keys():
+                        myDict[prevHouse]["area"] = myDict[prevHouse]["area"]+findArea(i)
                     elif len(findArea(i)):
-                        myDict[prevHouse]["Area"] = findArea(i)
+                        myDict[prevHouse]["area"] = findArea(i)
                     
-                    if "Type" in myDict[prevHouse].keys():
-                        myDict[prevHouse]["Type"] = myDict[prevHouse]["Type"]+findType(i)
+                    if "estate_status" in myDict[prevHouse].keys():
+                        myDict[prevHouse]["estate_status"] = myDict[prevHouse]["estate_status"]+findType(i)
                     elif len(findType(i)):
-                        myDict[prevHouse]["Type"] = findType(i)
+                        myDict[prevHouse]["estate_status"] = findType(i)
                     
-                    if "Society" in myDict[prevHouse].keys():
-                        myDict[prevHouse]["Society"] = myDict[prevHouse]["Society"]+findSociety(i)
+                    if "apartment" in myDict[prevHouse].keys():
+                        myDict[prevHouse]["apartment"] = myDict[prevHouse]["apartment"]+findSociety(i)
                     elif len(findSociety(i)):
-                        myDict[prevHouse]["Society"] = findSociety(i)
+                        myDict[prevHouse]["apartment"] = findSociety(i)
 
-                    if "PropertyType" in myDict[prevHouse].keys():
-                        myDict[prevHouse]["PropertyType"] = myDict[prevHouse]["PropertyType"]+findPropertyType(i)
+                    if "estate_type" in myDict[prevHouse].keys():
+                        myDict[prevHouse]["estate_type"] = myDict[prevHouse]["estate_type"]+findPropertyType(i)
                     elif len(findPropertyType(i)):
-                        myDict[prevHouse]["PropertyType"] = findPropertyType(i)
+                        myDict[prevHouse]["estate_type"] = findPropertyType(i)
                     
-                    if "Mobile" in myDict[prevHouse].keys():
-                        myDict[prevHouse]["Mobile"] = myDict[prevHouse]["Mobile"]+findMobile(i)
+                    if "broker_mobile" in myDict[prevHouse].keys():
+                        myDict[prevHouse]["broker_mobile"] = myDict[prevHouse]["broker_mobile"]+findMobile(i)
                     elif len(findMobile(i)):
-                        myDict[prevHouse]["Mobile"] = findMobile(i)
+                        myDict[prevHouse]["broker_mobile"] = findMobile(i)
                         myDict[prevHouse]["endquery"] = "true"
                     
                     if len(findSize(i)):
-                        if "Size" in myDict[prevHouse].keys():
-                            myDict[prevHouse]["Size"] = myDict[prevHouse]["Size"]+ list(findSize(i))
+                        if "floor_space" in myDict[prevHouse].keys():
+                            myDict[prevHouse]["floor_space"] = myDict[prevHouse]["floor_space"]+ list(findSize(i))
                         else:
-                            myDict[prevHouse]["Size"] = list(findSize(i))
+                            myDict[prevHouse]["floor_space"] = list(findSize(i))
 
                     if len(findFurntiure(i)):
                         myDict[prevHouse]["Furniture"] = findFurntiure(i)
@@ -321,9 +339,13 @@ def findALlRequiremnts(lines,start_index):
 
 def filterSize(mydict):
 
-    if "Rooms" in mydict.keys():
-        mydict["Rooms"] = [ x.upper() for x in mydict["Rooms"] ]
+    if "number_of_bedrooms" in mydict.keys():
+        mydict["number_of_bedrooms"] = [ x.lower() for x in mydict["number_of_bedrooms"] ]
         filterRooms(mydict)
+    
+    if "Others" in mydict.keys():
+        filterOthers(mydict)
+    
 
 
 def get_data_from_msg(string):
@@ -331,6 +353,7 @@ def get_data_from_msg(string):
     start_index =0
     end_index = 0
     i=0
+    print(len(lines))
     owner = "93280 59281"
     new_dic = dict()
     while i < len(lines):
@@ -353,7 +376,10 @@ def get_data_from_msg(string):
         elif lines[i] == "\n":
             i=i+1
         else:
-            new_dic[owner].append(json_index[0])
+            if owner in new_dic.keys():
+                new_dic[owner].append(json_index[0])
+            else:
+                new_dic[owner] = [json_index[0]]
             i =i+1
 
     #print("new_dic",new_dic)
@@ -365,6 +391,8 @@ def get_data_from_msg(string):
             #print(new_dic[i][j])
             for k in new_dic[i][j].keys():
                 filterSize(new_dic[i][j][k])
+                
+                # print("prev_json" , prev_json)
                 present_json = new_dic[i][j][k]
                 # print("present_json",present_json)
                 if "Newquery" in present_json.keys() and "endquery" not in present_json.keys():
@@ -376,15 +404,13 @@ def get_data_from_msg(string):
                 if len(prev_json.keys()) and prev_json != present_json:
                     for key in prev_json.keys():
                         if not key in new_dic[i][j][k]:
-                            if key in ["Type","PropertyType","Mobile","Budget","Society","Others"]:
-                                new_dic[i][j][k][key] = prev_json[key]
-                            elif key == "Size" and (("Rooms" not in prev_json.keys()  or len(prev_json["Rooms"]) == 0 ) or ("Rooms"  in present_json.keys()  and len(present_json["Rooms"]) == 0 )or "Rooms" not in present_json.keys() ):
+                            if key in ["estate_status","estate_type","broker_mobile","budget","apartment","Others","floor_space"]:
                                 new_dic[i][j][k][key] = prev_json[key]
 
-                            elif key == "Area" and (("PropertyType" in prev_json.keys() or "PropertyType" in present_json.keys() ) or ("Newquery" in prev_json.keys()) or len(prev_json.keys())==1):
+                            elif key == "area" and (("estate_type" in prev_json.keys() or "estate_type" in present_json.keys() ) or ("Newquery" in prev_json.keys()) or len(prev_json.keys())==1):
                                 new_dic[i][j][k][key] = prev_json[key]
 
-                            elif key in ["Rooms","Furniture"] and (("PropertyType" in present_json.keys() and present_json["PropertyType"][0] not in ["PLOT"]) or ("PropertyType" not in present_json.keys()) ):
+                            elif key in ["number_of_bedrooms","Furniture"] and (("estate_type" in present_json.keys() and present_json["estate_type"][0] not in ["PLOT"]) or ("estate_type" not in present_json.keys()) ):
                                 new_dic[i][j][k][key] = prev_json[key]
                         
                         else:
@@ -392,7 +418,7 @@ def get_data_from_msg(string):
                                 new_dic[i][j][k][key] = list(set(prev_json[key]+present_json[key]))
                 
                 
-                
+                # print(new_dic[i][j][k])
                 prev_json  = new_dic[i][j][k]
                 # print("prev_json",prev_json)
                 if i in jsonlist.keys():
@@ -405,10 +431,10 @@ def get_data_from_msg(string):
     for key in jsonlist.keys():
         for i,jobject in enumerate(jsonlist[key]):
             if "endquery" in jobject.keys():
-                if "Mobile" in jsonlist[key][i-1].keys():
-                        jsonlist[key][i-1]["Mobile"] = jsonlist[key][i-1]["Mobile"] + jsonlist[key][i]["Mobile"]
+                if "broker_mobile" in jsonlist[key][i-1].keys():
+                        jsonlist[key][i-1]["broker_mobile"] = jsonlist[key][i-1]["broker_mobile"] + jsonlist[key][i]["broker_mobile"]
                 else:
-                    jsonlist[key][i-1]["Mobile"] = jsonlist[key][i]["Mobile"]
+                    jsonlist[key][i-1]["broker_mobile"] = jsonlist[key][i]["broker_mobile"]
                 if key in validlist.keys():
                     validlist[key].append(jsonlist[key][i-1])
                 else:
@@ -418,10 +444,10 @@ def get_data_from_msg(string):
 
 
     json_object = json.dumps(validlist, sort_keys=True, indent = 4) 
-    
     with open("samplequery2.json", "w") as outfile:
         outfile.write(json_object)
 
+    # print(validlist)
     return validlist
 
 #print(jsonlist)

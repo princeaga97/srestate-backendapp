@@ -1,3 +1,4 @@
+from email import message
 from rest_framework.generics import ListAPIView ,CreateAPIView,DestroyAPIView,UpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -14,7 +15,7 @@ from property.models import Estate, EstateStatus, EstateType ,photos,City,Apartm
 import redis
 from property.utils import create_msg , check_balance ,ReturnResponse
 from property.location.location_views import db
-from UserManagement.utils import send_sms ,send_whatsapp_msg 
+from UserManagement.utils import send_sms ,send_whatsapp_msg  , read_json_related ,find_related_db
 
 
 
@@ -35,19 +36,34 @@ def modify_input_for_multiple_files(estate_id, image):
 @csrf_exempt
 @renderer_classes((TemplateHTMLRenderer, JSONRenderer))
 def demo_reply(request):
-    print(request.POST["Body"])
     From = request.POST["From"][12:]
     print(From)
     if request.POST["Body"] is not None:
         if request.POST["Body"].lower() == "hi":
             send_whatsapp_msg(From,"good effort")
-        elif "bhk" in request.POST["Body"].lower():
-            mycol = db.property_estate
-            data = mycol.find({"number_of_bedrooms":int(request.POST["Body"][0])})
-            if data:
-                listestate = list(data)
-                messageString = create_msg(listestate)
-                send_whatsapp_msg(From,messageString)
+        # elif "bhk" in request.POST["Body"].lower():
+        #     mycol = db.property_estate
+        #     data = mycol.find({"number_of_bedrooms":int(request.POST["Body"][0])})
+        #     if data:
+        #         listestate = list(data)
+        #         messageString = create_msg(listestate)
+        #         send_whatsapp_msg(From,messageString)
+        else:
+            out_json = get_data_from_msg(request.POST["Body"])
+            if out_json:
+                findQuery = out_json[list(out_json.keys())[0]][0]
+                print(findQuery)
+                if "broker_mobile" in findQuery.keys() and findQuery["broker_mobile"]:
+                    findQuery["broker_mobile"] = findQuery["broker_mobile"][0]
+                findQuery["id"] =0
+                mycol = db.property_estate
+                queryset = find_related_db(mycol,findQuery)
+                if queryset:
+                    listestate = list(queryset)
+                    print(listestate)
+                    messageString = create_msg(listestate)
+                    print(messageString)
+                    send_whatsapp_msg(From,messageString)
     return JsonResponse({"data": messageString},status = status.HTTP_200_OK)
 
 
@@ -556,6 +572,7 @@ class DeleteEstateTypeAPIView(DestroyAPIView):
 @csrf_exempt
 def related_properties(request):
     try:
+        queryset = []
         if not "estate" in request.data.keys() and request.data["estate"]:
             context = {
                 "msg": "Please Provide estates"
@@ -564,58 +581,9 @@ def related_properties(request):
 
         else:
             findQuery = request.data["estate"]
-            if "estate_type" in findQuery.keys():
-                estate_type = findQuery["estate_type"]
-                if not isinstance(estate_type,list):
-                    findQuery["estate_type"] = [estate_type]
-            if "area" in findQuery.keys():
-                area = findQuery["area"]
-                if not isinstance(area,list):
-                    findQuery["area"] = [area]
-            if "estate_status" in findQuery.keys():
-                if findQuery["estate_status"] == "sell":
-                    estate_status = "purchase"
-                elif findQuery["estate_status"] == "purchase":
-                    estate_status = "sell"
-                elif findQuery["estate_status"] == "rent":
-                    estate_status = "rent" 
-            if "budget" in findQuery.keys():
-                budget = findQuery["budget"]
-            if "floor_space" in findQuery.keys():
-                floor_space = findQuery["floor_space"]
-                floor_space = float(floor_space) + 0.1* float(floor_space)
-            if "number_of_bedrooms" in findQuery.keys():
-                number_of_bedrooms = findQuery["number_of_bedrooms"]
-        print(findQuery)
-        mycol = db.property_estate
-        if "flat" not in estate_type:
-            queryset= mycol.aggregate([
-                {
-                    "$match" : { "$and": [ 
-                        {"$or": [{ "id": {"$ne":findQuery["id"]} }]},
-                        {"$or": [{ "area": {"$in" :findQuery["area"] }   }]},
-                        {"$or": [{ "estate_type": {"$in" :findQuery["estate_type"] }  }]},
-                        {"$or": [{ "estate_status": estate_status }]},
-                        {"$or":[{ "broker_mobile": request.user.mobile }]},
-                        {"$or": [{ "budget": { "$gte": 0, "$lte": budget } }, { "floor_space": { "$lte": floor_space } } ]}
-                    ]} } ]
-                )
-        else:
-            queryset= mycol.aggregate([
-                {
-                    "$match" : { "$and": [ 
-                        {"$or": [{ "id": {"$ne":findQuery["id"]} }]},
-                        {"$or": [{ "area": {"$in" :findQuery["area"] }   }]},
-                        {"$or": [{ "estate_type": {"$in" :findQuery["estate_type"] }  }]},
-                        {"$or": [{ "estate_status": estate_status }]},
-                        {"$or": [{ "number_of_bedrooms": number_of_bedrooms }]},
-                        {"$or":[{ "broker_mobile": request.user.mobile }]},
-                        {"$or": [{ "budget": { "$gte": 0, "$lte": budget } }, { "floor_space": { "$lte": floor_space } } ]}
-                    ]} } ]
-                )
+            mycol = db.property_estate
+            queryset = find_related_db(mycol,findQuery)
 
-        response ={"success":True,
-            "error":" "}
         if queryset:
             serializer = EstateSerializer(queryset,many = True)
             return ReturnResponse(data=serializer.data,success=True,msg="fetch successfully", status=status.HTTP_200_OK)

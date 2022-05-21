@@ -14,6 +14,78 @@ from datetime import datetime
 # Find your Account SID and Auth Token at twilio.com/console
 # and set the environment variables. See http://twil.io/secure
 
+def read_json_related(findQuery):
+    budget=0 
+    floor_space =0
+    number_of_bedrooms =0
+    estate_status = ""
+    if "estate_type" in findQuery.keys():
+        estate_type = findQuery["estate_type"]
+        if not isinstance(estate_type,list):
+            findQuery["estate_type"] = [estate_type]
+    if "area" in findQuery.keys():
+        area = findQuery["area"]
+        if not isinstance(area,list):
+            findQuery["area"] = [area]
+    if "estate_status" in findQuery.keys():
+        if isinstance(findQuery["estate_status"],list):
+            findQuery["estate_status"] = findQuery["estate_status"][0]
+        if findQuery["estate_status"] == "sell":
+            estate_status = "purchase"
+        elif findQuery["estate_status"] == "purchase":
+            estate_status = "sell"
+        elif findQuery["estate_status"] == "rent":
+            estate_status = "rent" 
+    if "budget" in findQuery.keys():
+        budget = findQuery["budget"]
+        if isinstance(budget,list):
+            budget.sort()
+            budget = budget[-1]
+        budget = float(budget) + 0.1* float(budget)
+    if "floor_space" in findQuery.keys():
+        floor_space = findQuery["floor_space"]
+        if isinstance(floor_space,list):
+            floor_space.sort()
+            floor_space = floor_space[-1]
+        floor_space = float(floor_space) + 0.1* float(floor_space)
+    if "number_of_bedrooms" in findQuery.keys():
+        number_of_bedrooms = findQuery["number_of_bedrooms"]
+
+    return findQuery,number_of_bedrooms,budget,floor_space,estate_status
+
+
+def find_related_db(mycol,findQuery):
+    budget=0 
+    floor_space =0
+    findQuery,number_of_bedrooms,budget,floor_space,estate_status = read_json_related(findQuery)
+    
+    print(findQuery,number_of_bedrooms,budget,floor_space,estate_status)
+
+    if "flat" not in findQuery["estate_type"]:
+        
+        queryset= mycol.aggregate([
+            {
+                "$match" : { "$and": [ 
+                    {"$or": [{ "id": {"$ne":findQuery["id"]} }]},
+                    {"$or": [{ "area": {"$in" :findQuery["area"] }   }]},
+                    {"$or": [{ "estate_type": {"$in" :findQuery["estate_type"] }  }]},
+                    {"$or": [{ "estate_status": estate_status }]},
+                    {"$or":[{ "broker_mobile": findQuery["broker_mobile"] }]},
+                    {"$or": [{ "budget": { "$gte": 0, "$lte": budget } }, { "floor_space": { "$lte": floor_space } } ]}
+                ]} } ]
+            )
+    else:
+        queryset= mycol.aggregate([
+            {
+                "$match" : { "$and": [ 
+                    {"$and": [{ "id": {"$ne":findQuery["id"]} },{ "estate_status": estate_status },{ "number_of_bedrooms":{"$in" :number_of_bedrooms }},{ "broker_mobile": findQuery["broker_mobile"] }]},
+                    {"$or": [{ "area": {"$in" :findQuery["area"] }   },{ "estate_type": {"$in" :findQuery["estate_type"] }  }]},
+                    {"$or": [{ "floor_space": {"$lte": floor_space } } ]},
+                    {"$or": [{ "budget": {"$lte": budget } } ]}
+                ]} } ]
+            )
+    return queryset
+
 def send_whatsapp_msg(mobile,messageString):
     try:
         account_sid = TWILIO_ACCOUNT_SID
