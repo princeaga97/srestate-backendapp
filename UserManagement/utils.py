@@ -79,9 +79,12 @@ def find_related_db(mycol,findQuery):
             {
                 "$match" : { "$and": [ 
                     {"$and": [{ "id": {"$ne":findQuery["id"]} },{ "estate_status": estate_status },{ "number_of_bedrooms":{"$in" :number_of_bedrooms }},{ "broker_mobile": findQuery["broker_mobile"] }]},
-                    {"$or": [{ "area": {"$in" :findQuery["area"] }   },{ "estate_type": {"$in" :findQuery["estate_type"] }  }]},
-                    {"$or": [{ "floor_space": {"$lte": floor_space } } ]},
-                    {"$or": [{ "budget": {"$lte": budget } } ]}
+                    {"$or": [
+                      {"$or" : [ { "area": {"$in" :findQuery["area"] }}]},
+                      {"$or" :[{ "estate_type": {"$in" :findQuery["estate_type"] }}]},
+                      {"$or" : [ { "floor_space": {"$lte": floor_space } }]},
+                      {"$or" :[{ "budget": {"$lte": budget } }]}
+                    ]}
                 ]} } ]
             )
     return queryset
