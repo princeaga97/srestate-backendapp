@@ -117,7 +117,7 @@ def send_whatsapp_msg(mobile,messageString):
 
 
 
-def send_otp(mobile):
+def send_otp(mobile, appString):
     try:
         account_sid = TWILIO_ACCOUNT_SID
         auth_token = TWILIO_AUTH_TOKEN
@@ -126,7 +126,7 @@ def send_otp(mobile):
         print(OTP)
         message = client.messages \
                         .create(
-                            body=f"OTP for SR ESTATE {OTP}",
+                            body=f"  {appString} SR ESTATE  for {OTP} OTP for Verification",
                             from_='+18645288237',
                             to=f'+91{mobile}'
                         )
@@ -164,8 +164,8 @@ def get_and_authenticate_user(Mobile, otp):
     user = authenticate(Mobile=Mobile, otp=otp)
     return user
 
-def create_user_account(Mobile):
-    otp =send_otp(mobile = Mobile)
+def create_user_account(Mobile,appString):
+    otp =send_otp(mobile = Mobile, appString=appString)
     #otp = 123456
     brokeruser ,created = BrokersUsers.objects.get_or_create(
         Mobile=Mobile)

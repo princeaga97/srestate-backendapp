@@ -9,7 +9,7 @@ from django.contrib.auth.models import BaseUserManager
 
 class UserLoginSerializer(serializers.Serializer):
     Mobile = serializers.CharField(max_length = 10)
-
+    appString = serializers.CharField(max_length = 50)
     def validate_Mobile(self,value):
         if len(value) != 10:
             raise serializers.ValidationError("mobile length error")
