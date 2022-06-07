@@ -152,7 +152,7 @@ class ListApartmentAPIView(ListAPIView):
                     areas = json.loads(areas)
                     data  = areas
                 else:
-                    queryset = mycol.find({"is_deleted":False},{"area": {"$in":request.data["area"]}})
+                    queryset = mycol.find({"is_deleted":False,"area": {"$in":request.data["area"]}})
                     serializer = ApartmentSerializer(queryset,many = True)
                     jobject = json.dumps(serializer.data)
                     cache.setex(name= cache_key, value=jobject, time=60*60*24)
