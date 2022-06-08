@@ -222,7 +222,7 @@ def send_message(request):
                 query.insert_one(messageString[1])
                 return ReturnResponse(data=response,success=True,msg="message sent successfully",status= status.HTTP_200_OK)
             else:
-                return ReturnResponse(error=response,success=True,msg="message sent successfully",status= status.HTTP_200_OK)
+                return ReturnResponse(errors=response,success=True,msg="message sent successfully",status= status.HTTP_200_OK)
         else:
             return ReturnResponse(success=True,msg="no data found",status= status.HTTP_200_OK)
     except Exception as e:
