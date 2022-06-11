@@ -135,7 +135,51 @@ def get_sell_estate(request):
         return ReturnResponse(data = data,success=True,msg="fetch successfully", status=status.HTTP_200_OK)
     except Exception as e:
         return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-   
+
+
+@api_view(('POST',))
+@csrf_exempt
+def get_filter_details(request):
+
+    try:
+        required_fields = {
+        "area":[],
+        "estate_status":[],
+        "furniture":["WITH FULL FURNITURE", "Fully Furnished","Semi Furnished","luxurious furnished","furnished","Renovated"],
+        "estate_type":[],
+        "budget" : [],
+        "rooms" : []
+        }
+
+        mapping_db = {
+            "area":["area_name",db.property_area.find({},{"area_name":1,"_id":0})],
+            "estate_status":["estate_status_name",db.property_estatestatus.find({},{"estate_status_name":1,"_id":0})],
+            "estate_type":["type_name",db.property_estate_type.find({},{"type_name":1,"_id":0})],
+            "budget":["budget",db.property_estate.find({},{"budget":1,"_id":0})],
+            "rooms" : ["number_of_bedrooms",db.property_estate.find({},{"number_of_bedrooms":1,"_id":0})]
+        }
+        
+        
+        for key,value  in mapping_db.items(): 
+            if key not in cache:
+                if key not in ["budget","rooms"]:
+                    required_fields[key] = [ x.get(value[0],"").lower() for x in   list(value[1]) ]
+                    # required_fields[key] = [ x  for x in   list(value[1]) if x!=""]
+                else:
+                    required_fields[key] = [ x.get(value[0],"") for x in   list(value[1]) ]
+                    required_fields[key].sort()
+                    required_fields[key] = list(set(required_fields[key]))
+                jobject = json.dumps(required_fields[key])
+                cache.setex(name= key, value=jobject, time=60*60*24)
+
+            else:
+                required_fields[key] = cache.get(key)
+                required_fields[key] = json.loads(required_fields[key])
+                
+        return ReturnResponse(data=required_fields,msg="",success=True, status=status.HTTP_200_OK)
+    except Exception as e:
+        return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 @api_view(('POST',))
