@@ -99,22 +99,23 @@ class Estate(models.Model):
     estate_name = models.CharField(max_length=255)
     city = models.CharField(max_length=128, default= "")
     estate_type = models.CharField(max_length=128, default= "")
+    furniture = models.CharField(max_length=128, default= "",blank=True)
     floor_space = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
     number_of_balconies = models.IntegerField(blank=True)
     balconies_space = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
-    number_of_bedrooms = models.IntegerField(blank=True)
+    number_of_bedrooms = models.IntegerField(blank=True,default=0)
     number_of_bathrooms = models.IntegerField(blank=True)
     number_of_garages = models.IntegerField(blank=True)
     number_of_parking_spaces = models.IntegerField(blank=True)
     pets_allowed = models.IntegerField(blank=True)
-    estate_description = models.TextField()  # This field type is a guess.
+    estate_description = models.TextField(blank=True)  # This field type is a guess.
     estate_status = models.CharField(max_length=128, default= "")
     is_deleted = models.BooleanField(default=False)
     society = models.CharField(max_length=128, default= "")
     area = models.CharField(max_length=128, default= "")
     broker_mobile = models.CharField(max_length=128, default= "")
     broker_name = models.CharField(max_length=128, default= "")
-    budget = models.IntegerField(blank=True)
+    budget = models.IntegerField(blank=True,default=0)
 
     class Meta:
         managed = True

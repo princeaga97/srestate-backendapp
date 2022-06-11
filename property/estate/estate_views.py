@@ -145,7 +145,7 @@ def get_filter_details(request):
         required_fields = {
         "area":[],
         "estate_status":[],
-        "furniture":["WITH FULL FURNITURE", "Fully Furnished","Semi Furnished","luxurious furnished","furnished","Renovated"],
+        "furniture":["fully furnished","semi furnished","luxurious furnished","furnished","renovated"],
         "estate_type":[],
         "budget" : [],
         "rooms" : []
@@ -154,27 +154,25 @@ def get_filter_details(request):
         mapping_db = {
             "area":["area_name",db.property_area.find({},{"area_name":1,"_id":0})],
             "estate_status":["estate_status_name",db.property_estatestatus.find({},{"estate_status_name":1,"_id":0})],
-            "estate_type":["type_name",db.property_estate_type.find({},{"type_name":1,"_id":0})],
+            "estate_type":["type_name",db.property_estatetype.find({},{"type_name":1,"_id":0})],
             "budget":["budget",db.property_estate.find({},{"budget":1,"_id":0})],
             "rooms" : ["number_of_bedrooms",db.property_estate.find({},{"number_of_bedrooms":1,"_id":0})]
         }
         
         
         for key,value  in mapping_db.items(): 
-            if key not in cache:
-                if key not in ["budget","rooms"]:
-                    required_fields[key] = [ x.get(value[0],"").lower() for x in   list(value[1]) ]
-                    # required_fields[key] = [ x  for x in   list(value[1]) if x!=""]
-                else:
-                    required_fields[key] = [ x.get(value[0],"") for x in   list(value[1]) ]
-                    required_fields[key].sort()
-                    required_fields[key] = list(set(required_fields[key]))
-                jobject = json.dumps(required_fields[key])
-                cache.setex(name= key, value=jobject, time=60*60*24)
-
+            if key not in ["budget","rooms"]:
+                required_fields[key] = [ x.get(value[0],"").lower() for x in   list(value[1]) ]
+                # required_fields[key] = [ x  for x in   list(value[1]) if x!=""]
             else:
-                required_fields[key] = cache.get(key)
-                required_fields[key] = json.loads(required_fields[key])
+                required_fields[key] = [ x.get(value[0],0) for x in   list(value[1]) ]
+
+                required_fields[key].sort()
+                required_fields[key] = list(set(required_fields[key]))
+            jobject = json.dumps(required_fields[key])
+            cache.setex(name= key, value=jobject, time=60*60*24)
+
+            
                 
         return ReturnResponse(data=required_fields,msg="",success=True, status=status.HTTP_200_OK)
     except Exception as e:
@@ -204,11 +202,13 @@ def get_filter_estate(request):
         if "society" in request.data.keys() and list(request.data["apartment"]):
             findQuery["society"] = {"$in":list(request.data["apartment"])}
         
+        if "furniture" in request.data.keys() and list(request.data["furniture"]):
+            findQuery["furniture"] = {"$in":list(request.data["furniture"])}
+        
         if "budget" in request.data.keys() and list(request.data["budget"]):
 
             findQuery["budget"] = {"$gte":list(request.data["budget"])[0],"$lte":list(request.data["budget"])[1]}
         
-        print(findQuery)
         mycol = db.property_estate
         queryset= mycol.find(findQuery)
         serializer = EstateSerializer(queryset,many = True)
@@ -306,7 +306,7 @@ class CreateEstateAPIView(CreateAPIView):
     queryset = Estate.objects.all()
     serializer_class = EstateSerializer
 
-    def post(self,request,mobile):
+    def post(self,request):
 
         try:
 
@@ -314,11 +314,10 @@ class CreateEstateAPIView(CreateAPIView):
             cache.delete(str(request.user.mobile) + "sell")
             cache.delete(str(request.user.mobile))
             serializer = EstateSerializer(data=request.data)
-            
+            mobile = request.user.mobile
             if serializer.is_valid():
                 if len(str(mobile)) == 10:
                     broker,created = Broker.objects.get_or_create(
-                    name = serializer.data["broker_name"],
                     mobile = int(mobile)
                     )
                     print(request.data)
@@ -377,18 +376,8 @@ class CreateEstateAPIView(CreateAPIView):
                 estate = serializer.create(data1)
                 print(estate)
                 estate.broker_mobile = mobile
+                estate.broker_name = broker.name
                 estate.save()
-                # if flag == 1:
-                #     context = {
-                #         "images":arr,
-                #         "msg":"Created Successfully and Images Saved"
-                #     }
-
-                # else:
-                #     context = {
-                #         "images": arr,
-                #         "msg": "Created Successfully"
-                #     }
                 try:
                     mycol = db.property_estate
                     queryset= mycol.find({
@@ -409,7 +398,7 @@ class CreateEstateAPIView(CreateAPIView):
                         cache.setex(name= str(request.user.mobile)+"buy", value=jobject, time=60*15)
                 except:
                     pass
-                return ReturnResponse(success=True,msg="Created Successfully", status=status.HTTP_200_OK)
+                return ReturnResponse(success=True,msg="Created Successfully", status=status.HTTP_201_CREATED)
             else:
 
                 return ReturnResponse(errors= serializer.errors,msg="", status=status.HTTP_200_OK)

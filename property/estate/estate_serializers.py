@@ -12,10 +12,8 @@ class EstateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Estate
         fields = ["id","estate_name","city","estate_type","floor_space",
-        "number_of_balconies","balconies_space","number_of_bedrooms",
-        "number_of_bathrooms","number_of_garages","number_of_parking_spaces",
-        "pets_allowed","estate_description","estate_status","society",
-        "area","broker_mobile","broker_name","budget" ]
+        "number_of_bedrooms","estate_description","estate_status","society",
+        "area","budget","furniture" ]
 
 
 
