@@ -187,23 +187,12 @@ def get_filter_estate(request):
     try:
         findQuery = {}
         findQuery["broker_mobile"] = request.user.mobile
-        if "area" in request.data.keys() and list(request.data["area"]):
-            findQuery["area"] = {"$in":list(request.data["area"])}
-        
-        if "estate_status" in request.data.keys() and list(request.data["estate_status"]):
-            findQuery["estate_status"] = {"$in":list(request.data["estate_status"])}
-        
-        if "estate_type" in request.data.keys() and list(request.data["estate_type"]):
-            findQuery["estate_type"] = {"$in":list(request.data["estate_type"])}
-        
-        if "number_of_bedrooms" in request.data.keys() and list(request.data["number_of_bedrooms"]):
-            findQuery["number_of_bedrooms"] = {"$in":list(request.data["number_of_bedrooms"])}
-        
-        if "society" in request.data.keys() and list(request.data["apartment"]):
-            findQuery["society"] = {"$in":list(request.data["apartment"])}
-        
-        if "furniture" in request.data.keys() and list(request.data["furniture"]):
-            findQuery["furniture"] = {"$in":list(request.data["furniture"])}
+        filter_paramneters = ["area", "estate_status" , "estate_type" , "number_of_bedrooms" , "society" ,"furniture" , "budget"]
+
+        for parameter in filter_paramneters:
+            if parameter in request.data.keys() and list(request.data[parameter]):
+                if len(list(request.data[parameter])):
+                    findQuery[parameter] = {"$in":list(request.data[parameter])}
         
         if "budget" in request.data.keys() and list(request.data["budget"]):
 
