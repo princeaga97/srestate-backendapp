@@ -359,8 +359,12 @@ class CreateEstateAPIView(CreateAPIView):
 
 
                 for i in data1.keys():
-                    if type(data1[i]) == str:
+                    if data1[i].isdigit():
+                        data1[i] = int(data1[i])
+                    elif type(data1[i]) == str:
                         data1[i] = data1[i].lower()
+                    
+                    
 
                 estate = serializer.create(data1)
                 print(estate)
