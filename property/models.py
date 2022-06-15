@@ -96,7 +96,7 @@ class Contact(models.Model):
 
 class Estate(models.Model):
     #id =  models.AutoField(primary_key = True)
-    estate_name = models.CharField(max_length=255)
+    estate_name = models.CharField(max_length=255,blank=True,default="")
     city = models.CharField(max_length=128, default= "")
     estate_type = models.CharField(max_length=128, default= "")
     furniture = models.CharField(max_length=128, default= "",blank=True)
