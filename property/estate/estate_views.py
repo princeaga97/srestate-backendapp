@@ -143,10 +143,10 @@ def get_filter_details(request):
 
     try:
         cache_query = "filter_details"
-        # if cache_query in cache:
-        #     filter_details = cache.get(cache_query)
-        #     filter_details = json.loads(filter_details)
-        #     return ReturnResponse(data = filter_details,success=True,msg="fetch successfully", status=status.HTTP_200_OK)
+        if cache_query in cache:
+            filter_details = cache.get(cache_query)
+            filter_details = json.loads(filter_details)
+            return ReturnResponse(data = filter_details,success=True,msg="fetch successfully", status=status.HTTP_200_OK)
         required_fields = {
         "area":[],
         "estate_status":[],
