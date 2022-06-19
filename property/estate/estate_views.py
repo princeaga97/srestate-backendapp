@@ -137,7 +137,7 @@ def get_sell_estate(request):
         return ReturnResponse(errors=str(e),msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(('POST',))
+@api_view(('GET',))
 @csrf_exempt
 def get_filter_details(request):
 
