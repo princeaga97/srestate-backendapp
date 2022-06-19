@@ -171,7 +171,7 @@ def get_filter_details(request):
                 required_fields[key] = [ x.get(value[0],"").lower() for x in   list(value[1]) ]
                 # required_fields[key] = [ x  for x in   list(value[1]) if x!=""]
             else:
-                required_fields[key] = [ float(x.get(value[0],0)) for x in   list(value[1]) ]
+                required_fields[key] = [ float(str(x.get(value[0],0))) for x in   list(value[1]) ]
 
                 required_fields[key].sort()
                 required_fields[key] = list(set(required_fields[key]))
