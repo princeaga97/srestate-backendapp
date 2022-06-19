@@ -156,12 +156,13 @@ def get_filter_details(request):
             "estate_status":["estate_status_name",db.property_estatestatus.find({},{"estate_status_name":1,"_id":0})],
             "estate_type":["type_name",db.property_estatetype.find({},{"type_name":1,"_id":0})],
             "budget":["budget",db.property_estate.find({},{"budget":1,"_id":0})],
-            "rooms" : ["number_of_bedrooms",db.property_estate.find({},{"number_of_bedrooms":1,"_id":0})]
+            "rooms" : ["number_of_bedrooms",db.property_estate.find({},{"number_of_bedrooms":1,"_id":0})],
+            "floor_space" : ["floor_space",db.property_estate.find({},{"floor_space":1,"_id":0})]
         }
         
         
         for key,value  in mapping_db.items(): 
-            if key not in ["budget","rooms"]:
+            if key not in ["budget","rooms","floor_space"]:
                 required_fields[key] = [ x.get(value[0],"").lower() for x in   list(value[1]) ]
                 # required_fields[key] = [ x  for x in   list(value[1]) if x!=""]
             else:
@@ -169,6 +170,8 @@ def get_filter_details(request):
 
                 required_fields[key].sort()
                 required_fields[key] = list(set(required_fields[key]))
+                if key != "rooms":
+                    required_fields[key] = [required_fields[key][0],required_fields[key][-1]]
             jobject = json.dumps(required_fields[key])
             cache.setex(name= key, value=jobject, time=60*60*24)
 
@@ -195,8 +198,10 @@ def get_filter_estate(request):
                     findQuery[parameter] = {"$in":list(request.data[parameter])}
         
         if "budget" in request.data.keys() and list(request.data["budget"]):
-
-            findQuery["budget"] = {"$gte":list(request.data["budget"])[0],"$lte":list(request.data["budget"])[1]}
+            findQuery["budget"] = {"$gte":min(list(request.data["budget"])),"$lte":max(list(request.data["budget"]))}
+        
+        if "floor_space" in request.data.keys() and list(request.data["floor_space"]):
+            findQuery["floor_space"] = {"$gte":min(list(request.data["floor_space"])),"$lte":max(list(request.data["floor_space"]))}
         
         mycol = db.property_estate
         queryset= mycol.find(findQuery)
