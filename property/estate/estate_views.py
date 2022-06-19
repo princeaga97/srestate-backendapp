@@ -1,4 +1,5 @@
 from email import message
+from selectors import EpollSelector
 from rest_framework.generics import ListAPIView ,CreateAPIView,DestroyAPIView,UpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -171,8 +172,11 @@ def get_filter_details(request):
                 required_fields[key] = [ x.get(value[0],"").lower() for x in   list(value[1]) ]
                 # required_fields[key] = [ x  for x in   list(value[1]) if x!=""]
             else:
-                required_fields[key] = [ float(str(x.get(value[0],0))) for x in   list(value[1]) ]
-
+                if key =="budget":
+                    required_fields[key] = [ float(str(x.get(value[0],0))) for x in   list(value[1]) ]
+                else:
+                    required_fields[key] = [ int(str(x.get(value[0],0))) for x in   list(value[1]) if x > 0]
+                    
                 required_fields[key].sort()
                 required_fields[key] = list(set(required_fields[key]))
                 if key != "rooms":
