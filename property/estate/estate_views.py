@@ -144,10 +144,10 @@ def get_filter_details(request):
 
     try:
         cache_query = "filter_details"
-        if cache_query in cache:
-            filter_details = cache.get(cache_query)
-            filter_details = json.loads(filter_details)
-            return ReturnResponse(data = filter_details,success=True,msg="fetch successfully", status=status.HTTP_200_OK)
+        # if cache_query in cache:
+        #     filter_details = cache.get(cache_query)
+        #     filter_details = json.loads(filter_details)
+        #     return ReturnResponse(data = filter_details,success=True,msg="fetch successfully", status=status.HTTP_200_OK)
         required_fields = {
         "area":[],
         "estate_status":[],
@@ -176,7 +176,7 @@ def get_filter_details(request):
                     required_fields[key] = [ float(str(x.get(value[0],0))) for x in   list(value[1]) ]
                 else:
                     required_fields[key] = [ int(str(x.get(value[0],0))) for x in   list(value[1]) if x > 0]
-                    
+
                 required_fields[key].sort()
                 required_fields[key] = list(set(required_fields[key]))
                 if key != "rooms":
