@@ -175,7 +175,7 @@ def get_filter_details(request):
                 if key =="budget":
                     required_fields[key] = [ float(str(x.get(value[0],0))) for x in   list(value[1]) ]
                 else:
-                    required_fields[key] = [ int(str(x.get(value[0],0))) for x in   list(value[1]) if x > 0]
+                    required_fields[key] = [ float(str(x.get(value[0],0))) for x in   list(value[1]) if x > 0]
 
                 required_fields[key].sort()
                 required_fields[key] = list(set(required_fields[key]))
