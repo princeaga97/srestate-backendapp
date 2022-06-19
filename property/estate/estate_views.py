@@ -172,10 +172,10 @@ def get_filter_details(request):
                 required_fields[key] = [ x.get(value[0],"").lower() for x in   list(value[1]) ]
                 # required_fields[key] = [ x  for x in   list(value[1]) if x!=""]
             else:
-                if key =="budget":
+                if key =="floor_space":
                     required_fields[key] = [ float(str(x.get(value[0],0))) for x in   list(value[1]) ]
                 else:
-                    required_fields[key] = [ int(str(x.get(value[0],0))) for x in   list(value[1]) if int(str(x.get(value[0],0))) > 0]
+                    required_fields[key] = [ x.get(value[0],0) for x in   list(value[1]) if x.get(value[0],0) > 0]
 
                 required_fields[key].sort()
                 required_fields[key] = list(set(required_fields[key]))
