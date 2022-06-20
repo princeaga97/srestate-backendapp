@@ -173,7 +173,7 @@ def get_filter_details(request):
                 # required_fields[key] = [ x  for x in   list(value[1]) if x!=""]
             else:
                 if key =="floor_space":
-                    required_fields[key] = [ int(str(x.get(value[0],0))) for x in   list(value[1]) ]
+                    required_fields[key] = [ int(float(str(x.get(value[0],0)))) for x in   list(value[1]) ]
                 else:
                     required_fields[key] = [ x.get(value[0],0) for x in   list(value[1]) if x.get(value[0],0) > 0]
 
