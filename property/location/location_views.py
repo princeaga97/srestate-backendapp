@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view ,authentication_classes, permission_classes
 import pymongo
 from srestate.settings import mongo_uri 
-from srestate import CACHES
+from srestate.config import CACHES
 import json
 import redis
 from property.utils import ReturnResponse
