@@ -29,12 +29,13 @@ SECRET_KEY = 'os*+e_tp3#-yj#5lr^da=2%4!omhenb%$@-emahbe63+qjpa-m'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["django-env.eba-z5zkmnuv.us-west-2.elasticbeanstalk.com","srestateapi.herokuapp.com","127.0.0.1","49f4-2409-4050-2ecf-e078-62a0-5088-4175-6468.in.ngrok.io"]
+ALLOWED_HOSTS = ["django-env.eba-z5zkmnuv.us-west-2.elasticbeanstalk.com","srestateapi.herokuapp.com","127.0.0.1","20f0-3-7-27-185.in.ngrok.io"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'UserManagement',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,7 +46,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework',
     'cloudinary',
-    'UserManagement'
+    'chat'
 ]
 
 MIDDLEWARE = [
@@ -105,6 +106,8 @@ CACHES = {
 # mongo_uri = "mongodb://srestatedev1:"+str(urllib.parse.quote("changingbyte123$"))+"@docdb-2022-05-17-05-48-47.cluster-cckiz4syulr1.us-west-2.docdb.amazonaws.com:27017/?ssl=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
 mongo_uri =  'mongodb+srv://srestateapi:' + str(urllib.parse.quote("changingbyte@123"))  +'@cluster0.0zdkv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
 
+DATABASE_ROUTERS = ['chat.routers.chatRouter','UserManagement.routers.UserManagementRouter','property.routers.propertyRouter']
+
 DATABASES = {
         'default': {
             'ENGINE': 'djongo',
@@ -113,7 +116,23 @@ DATABASES = {
             'CLIENT': {
                 'host': mongo_uri
             }  
-        }
+        },
+
+        'messagedb':{
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            },
+
+        'db2': {
+            'ENGINE': 'djongo',
+            'NAME': 'your-db-name',
+            'ENFORCE_SCHEMA': False,
+            'CLIENT': {
+                'host': mongo_uri
+            }  
+        },
+
+
 }
 
 AUTH_USER_MODEL = "UserManagement.User" 

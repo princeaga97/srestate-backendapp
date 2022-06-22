@@ -179,6 +179,7 @@ def filterRooms(mydict):
                 else:
                     mydict["Others"] = [mydict["number_of_bedrooms"][j]]
     mydict["number_of_bedrooms"] = room_list
+    print(mydict["number_of_bedrooms"])
 def filterOthers(mydict):
     if "Others" in mydict.keys():
         for j,i in enumerate(mydict["Others"]):
@@ -340,9 +341,10 @@ def findALlRequiremnts(lines,start_index):
 def filterSize(mydict):
 
     if "number_of_bedrooms" in mydict.keys():
+        print("Here1")
         mydict["number_of_bedrooms"] = [ x.lower() for x in mydict["number_of_bedrooms"] ]
         filterRooms(mydict)
-    
+        print("mydict",mydict)
     if "Others" in mydict.keys():
         filterOthers(mydict)
     
@@ -354,8 +356,9 @@ def get_data_from_msg(string):
     end_index = 0
     i=0
     print(len(lines))
-    owner = "93280 59281"
+    owner = "7984702696"
     new_dic = dict()
+    json_index = []
     while i < len(lines):
         json_index = findALlRequiremnts(lines,i)
         # print("json_index",json_index)
@@ -376,13 +379,14 @@ def get_data_from_msg(string):
         elif lines[i] == "\n":
             i=i+1
         else:
+            print("json_index",json_index)
             if owner in new_dic.keys():
                 new_dic[owner].append(json_index[0])
             else:
                 new_dic[owner] = [json_index[0]]
             i =i+1
 
-    #print("new_dic",new_dic)
+    print("new_dic",new_dic)
     jsonlist = dict()
 
     prev_json = dict()
@@ -390,7 +394,9 @@ def get_data_from_msg(string):
         for j in  range(0, len(new_dic[i])):
             #print(new_dic[i][j])
             for k in new_dic[i][j].keys():
+                
                 filterSize(new_dic[i][j][k])
+                print("n",new_dic[i][j][k])
                 
                 # print("prev_json" , prev_json)
                 present_json = new_dic[i][j][k]
@@ -418,6 +424,7 @@ def get_data_from_msg(string):
                                 new_dic[i][j][k][key] = list(set(prev_json[key]+present_json[key]))
                 
                 
+                
                 # print(new_dic[i][j][k])
                 prev_json  = new_dic[i][j][k]
                 # print("prev_json",prev_json)
@@ -426,7 +433,7 @@ def get_data_from_msg(string):
                 else:
                     jsonlist[i] = [prev_json]
 
-    # print(jsonlist)
+    print(jsonlist)
     validlist = dict()
     for key in jsonlist.keys():
         for i,jobject in enumerate(jsonlist[key]):
@@ -441,13 +448,20 @@ def get_data_from_msg(string):
                     validlist[key] = [jsonlist[key][i-1]]
             
 
+            
 
 
+    
     json_object = json.dumps(validlist, sort_keys=True, indent = 4) 
     with open("samplequery2.json", "w") as outfile:
         outfile.write(json_object)
 
     # print(validlist)
+    if not validlist:
+        if key in validlist.keys():
+            validlist[key].append(jsonlist[key][0])
+        else:
+            validlist[key] = [jsonlist[key][0]]
     return validlist
 
 #print(jsonlist)
