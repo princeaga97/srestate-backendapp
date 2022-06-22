@@ -8,7 +8,8 @@ from rest_framework.parsers import MultiPartParser,FormParser ,JSONParser
 from rest_framework.decorators import api_view ,authentication_classes, permission_classes ,parser_classes ,renderer_classes
 import json
 from django.http import JsonResponse
-from srestate.settings import mongo_uri , CACHES
+from srestate.settings import mongo_uri 
+from srestate import CACHES
 from property.estate.wputils import get_data_from_msg
 from django.views.decorators.csrf import csrf_exempt
 from property.estate.estate_serializers import EstateSerializer, EstateStatusSerializer, EstateTypeSerializer,ImageSerializer , EstateWPSerializer
