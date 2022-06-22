@@ -95,13 +95,7 @@ REST_FRAMEWORK = {
 
 
 
-CACHES = {
-    'default': {
-        "host":"redis-14152.c264.ap-south-1-1.ec2.cloud.redislabs.com",
-        "port":"14152",
-        "password":"93mHkCGxkxM0Wj2yjcO8bxkhlECCOCis"
-    }
-}
+
 
 # mongo_uri = "mongodb://srestatedev1:"+str(urllib.parse.quote("changingbyte123$"))+"@docdb-2022-05-17-05-48-47.cluster-cckiz4syulr1.us-west-2.docdb.amazonaws.com:27017/?ssl=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
 mongo_uri =  'mongodb+srv://srestateapi:' + str(urllib.parse.quote("changingbyte@123"))  +'@cluster0.0zdkv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
