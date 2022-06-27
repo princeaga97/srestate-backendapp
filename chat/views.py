@@ -25,7 +25,7 @@ def create_msg_in_db(data,sender,recieved = False):
     serilizer = MessageSerializer(data=data)
     if serilizer.is_valid():
         if recieved:
-            contact_send, created = Contacts.objects.get_or_create(
+            contact_send,created = Contacts.objects.get_or_create(
                 contact = sender,
                 owner = serilizer.validated_data["receiver_name"]
             )
