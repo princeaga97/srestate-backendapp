@@ -2,6 +2,8 @@ import uuid
 from rest_framework.response import Response
 from rest_framework import status
 from property.message_mapping import MSG_MAPPING ,QUERY_MAPPING
+import json
+from django.http import JsonResponse
 
 def check_balance(request,listestate):
     amount  = 0
@@ -45,3 +47,15 @@ def ReturnResponse(status,errors=[],data=[],msg="",success=False):
         "data":data,
     }
     return Response(data= response,status = status)
+
+
+def ReturnJsonResponse(status,errors=[],data=[],msg="",success=False):
+    response = {
+
+        "success":success,
+        "error":errors,
+        "message":msg,
+        "data":data,
+    }
+    return JsonResponse(data= response,status = status)
+

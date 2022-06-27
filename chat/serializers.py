@@ -22,6 +22,7 @@ class MessageViewSerializer(serializers.ModelSerializer):
 
 
 class ContactViewSerializer(serializers.ModelSerializer):
+    last_message = MessageSerializer()
     class Meta:
         model = Contacts
         fields = "__all__"

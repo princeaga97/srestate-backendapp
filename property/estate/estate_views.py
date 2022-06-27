@@ -17,6 +17,7 @@ from property.models import Estate, EstateStatus, EstateType ,photos,City,Apartm
 import redis
 from property.utils import create_msg , check_balance ,ReturnResponse
 from property.location.location_views import db
+from chat.views import create_msg_in_db
 from UserManagement.utils import send_sms ,send_whatsapp_msg  , read_json_related ,find_related_db
 
 
@@ -264,8 +265,12 @@ def send_message(request):
                     request.user.save()
             
             if response["success"]:
-                query = db.property_enquiryquerys
-                query.insert_one(messageString[1])
+                msg_data={
+                        "seen":False,
+                        "receiver_name":mobile_number,
+                        "description":messageString[0]
+                    }
+                create_msg_in_db(msg_data,request.user.mobile)
                 return ReturnResponse(data=response,success=True,msg="message sent successfully",status= status.HTTP_200_OK)
             else:
                 return ReturnResponse(errors=response,success=True,msg="message sent successfully",status= status.HTTP_200_OK)

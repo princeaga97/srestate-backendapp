@@ -24,3 +24,5 @@ urllib3==1.26.9
 dnspython==2.2.1
 fuzzywuzzy==0.18.0
 python_Levenshtein==0.12.2
+psycopg2-binary == 2.9.3
+dj-database-url==0.5.0

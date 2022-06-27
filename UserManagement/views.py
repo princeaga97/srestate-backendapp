@@ -41,21 +41,21 @@ def validate_mobile(request):
 
 
 
-# @api_view(('POST',))
-# @csrf_exempt
-# def validate_otp(request):
-#     print(request)
-#     serializer = serializers.AuthBrokersUserserializer(data=request.data)
-#     print(serializer)
-#     if serializer.is_valid(raise_exception=True):
-#         user = get_and_authenticate_user(**serializer.validated_data)
-#         data = serializers.AuthBrokersUserserializer().get_auth_token.data
-#         if user:
-#             return Response(data=data, status=status.HTTP_201_CREATED)
-#         else:
-#             return Response(data=data, status=status.HTTP_200_OK)
-#     else:
-#         return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+@api_view(('POST',))
+@csrf_exempt
+def validate_otp(request):
+    print(request)
+    serializer = serializers.AuthBrokersUserserializer(data=request.data)
+    print(serializer)
+    if serializer.is_valid(raise_exception=True):
+        user = get_and_authenticate_user(**serializer.validated_data)
+        data = serializers.AuthBrokersUserserializer().get_auth_token.data
+        if user:
+            return Response(data=data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(data=data, status=status.HTTP_200_OK)
+    else:
+        return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
 
     

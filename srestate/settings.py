@@ -113,10 +113,13 @@ DATABASES = {
         },
 
         'messagedb':{
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            "ENGINE": 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DATABASE_NAME'),
+            'USER': os.environ.get('DATABASE_USER'),
+            'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
+            'HOST': os.environ.get('DATABASE_HOST'),
+            'PORT': '5432'
             },
-
         'db2': {
             'ENGINE': 'djongo',
             'NAME': 'your-db-name',
@@ -132,6 +135,10 @@ DATABASES = {
 AUTH_USER_MODEL = "UserManagement.User" 
 TWILIO_ACCOUNT_SID = "ACddd7e4be77b766c76196481b7f0bf1b2"
 TWILIO_AUTH_TOKEN = "8def2942088e7b44d81fbee5b0f2d476"
+
+import dj_database_url
+db_from_env = dj_database_url.config(conn_max_age=600)
+DATABASES['messagedb'].update(db_from_env)
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/

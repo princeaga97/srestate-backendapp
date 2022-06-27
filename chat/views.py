@@ -8,12 +8,14 @@ from property.location.location_views import db
 from django.http import JsonResponse
 from property.estate.wputils import get_data_from_msg
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
-from rest_framework.decorators import renderer_classes
+from rest_framework.decorators import renderer_classes, api_view 
 from UserManagement.utils import send_sms ,send_whatsapp_msg  , read_json_related ,find_related_db
 from chat.models import Messages,Contacts
 from chat.serializers import MessageSerializer ,MessageViewSerializer , ContactViewSerializer
-from property.utils import ReturnResponse ,create_msg
+from property.utils import ReturnResponse ,create_msg , ReturnJsonResponse
 from datetime import datetime
+from django.db.models import Q
+import json
 
 
 # Create your views here.
@@ -72,6 +74,28 @@ class ListContactAPIView(ListAPIView):
     serializer_class = ContactViewSerializer
 
 
+@api_view(('GET',))
+@csrf_exempt
+@renderer_classes((TemplateHTMLRenderer, JSONRenderer))
+def chatByMobile(request):
+    try:
+        mobile = request.GET.get('mobile')
+        print(request.user)
+        if mobile is None:
+            return ReturnJsonResponse(errors=["please enter mobile"],success=False,msg="Invalid Request", status=status.HTTP_400_BAD_REQUEST)
+        chats = Messages.objects.filter(
+                Q(sender_name=request.user.mobile, receiver_name = mobile )|
+                    Q(receiver_name=request.user.mobile, sender_name = mobile )
+            )
+        if chats:
+            serializer = MessageViewSerializer(chats,many = True)
+            return ReturnJsonResponse(data = serializer.data,success=True,msg="fetch successfully", status=status.HTTP_200_OK)
+        else:
+            return ReturnJsonResponse(data = [],success=True,msg="PLease Send First Message", status=status.HTTP_200_OK)
+    except Exception as e:
+        print(str(e))
+        return ReturnJsonResponse(errors=str(e),success=False,msg="Internal Server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 @csrf_exempt
 @renderer_classes((TemplateHTMLRenderer, JSONRenderer))
 def demo_reply(request):
@@ -89,62 +113,47 @@ def demo_reply(request):
                 "seen":False
             }
         message, sucess = create_msg_in_db(data,From,recieved=True)
-        if request.POST["Body"].lower() == "hi":
-
-            msg = "good effort"
-            send_whatsapp_msg(From,msg)
-            data = {
-                "description":msg,
-                "receiver_name":From,
-                "seen":False
-            }
-
-            message, sucess = create_msg_in_db(data,sender)
-            if sucess:
-                return JsonResponse({ "success":True}, status=status.HTTP_200_OK)
+        
+        out_json = get_data_from_msg(request.POST["Body"])
+        if out_json:
+            findQuery = out_json[list(out_json.keys())[0]][0]
+            findQuery["broker_mobile"] = sender
+            findQuery["id"] =0
+            if "bhk" in request.POST["Body"] and "estate_type" not in findQuery:
+                findQuery["estate_type"] = ['flat']
+            mycol = db.property_estate
+            queryset = find_related_db(mycol,findQuery)
+            if queryset:
+                listestate = list(queryset)
+                messageString = create_msg(listestate)
+                send_whatsapp_msg(From,messageString)
+                data = {
+                    "description":messageString[0],
+                    "receiver_name":From,
+                    "seen":False
+                }
+                print("messageString",messageString)
+                message, sucess = create_msg_in_db(data,sender)
             else:
-                return JsonResponse({"success":False,"errors": message}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            out_json = get_data_from_msg(request.POST["Body"])
-            if out_json:
-                findQuery = out_json[list(out_json.keys())[0]][0]
-                findQuery["broker_mobile"] = sender
-                findQuery["id"] =0
-                if "bhk" in request.POST["Body"] and "estate_type" not in findQuery:
-                    findQuery["estate_type"] = ['flat']
-                mycol = db.property_estate
-                queryset = find_related_db(mycol,findQuery)
-                if queryset:
-                    listestate = list(queryset)
-                    messageString = create_msg(listestate)
-                    send_whatsapp_msg(From,messageString)
-                    data = {
-                        "description":messageString[0],
-                        "receiver_name":From,
-                        "seen":False
-                    }
-                    print("messageString",messageString[0])
-                    message, sucess = create_msg_in_db(data,sender)
-                else:
-                    messageString = "no estate found"
-                    send_whatsapp_msg(From,messageString)
-                    data = {
-                        "description":messageString,
-                        "receiver_name":From,
-                        "seen":False
-                    }
-                    message, sucess = create_msg_in_db(data,sender)
-
-            else:
-                messageString = "no qyery found"
+                messageString = "no estate found"
                 send_whatsapp_msg(From,messageString)
                 data = {
                     "description":messageString,
                     "receiver_name":From,
                     "seen":False
                 }
-
                 message, sucess = create_msg_in_db(data,sender)
+
+        else:
+            messageString = "no qyery found"
+            send_whatsapp_msg(From,messageString)
+            data = {
+                "description":messageString,
+                "receiver_name":From,
+                "seen":False
+            }
+
+            message, sucess = create_msg_in_db(data,sender)
                     
 
         return JsonResponse({"data": messageString},status = status.HTTP_200_OK)
