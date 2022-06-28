@@ -30,6 +30,7 @@ class Contacts(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
+        self.timestamp = self.timestamp.total_seconds()
         return f"To: {self.contact} From: {self.last_message.description}"
 
     class Meta:
