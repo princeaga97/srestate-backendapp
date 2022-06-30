@@ -38,3 +38,10 @@ class Contacts(models.Model):
     class Meta:
         ordering = ('timestamp',)
         app_label = 'chat'
+
+
+class ChatRoom(models.Model):
+    name = models.CharField(max_length=200)
+
+    def __unicode__(self):
+        return self.name
