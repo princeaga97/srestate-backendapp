@@ -113,13 +113,9 @@ DATABASES = {
         },
 
         'messagedb':{
-            "ENGINE": 'django.db.backends.postgresql',
-            'NAME': os.environ.get('DATABASE_NAME'),
-            'USER': os.environ.get('DATABASE_USER'),
-            'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
-            'HOST': os.environ.get('DATABASE_HOST'),
-            'PORT': '5432'
-            },
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': str(BASE_DIR + "//" + 'db.sqlite3'),
+                },
         'db2': {
             'ENGINE': 'djongo',
             'NAME': 'your-db-name',
@@ -162,9 +158,32 @@ cloudinary.config(
   api_secret = "0-Vtu1ua0Rl3woq6S4PwTeBM2Wo"
 )
 
+ASGI_APPLICATION = "srestate.asgi.application"
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Additional locations of static files
+STATICFILES_DIRS = (
+    # Put strings here, like "/home/html/static" or "C:/www/django/static".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+    os.path.join(BASE_DIR, "static"),
+)
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+)
 
