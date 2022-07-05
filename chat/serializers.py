@@ -1,6 +1,6 @@
 from dataclasses import fields
 from rest_framework import serializers
-from chat.models import Contacts, Messages , ChatRoom
+from chat.models import Contacts, Messages 
 
 
 
@@ -25,10 +25,7 @@ class MessageViewSerializer(serializers.ModelSerializer):
     def get_timestamp(self, obj):
         return obj.timestamp.timestamp()
 
-class ChatRoomViewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ChatRoom
-        fields = "__all__"
+
 
 
 class ContactViewSerializer(serializers.ModelSerializer):
