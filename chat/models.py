@@ -34,7 +34,8 @@ class Contacts(models.Model):
     websocket_url = models.TextField(blank=True,null=True)
 
     def __str__(self):
-        
+        self.websocket_url = f"wss://srestatechat.herokuapp.com/ws/chat/{self.owner}_{self.contact}/"
+        self.save()
         return f"To: {self.contact} From: {self.last_message.description}"
 
     class Meta:
