@@ -9,9 +9,9 @@ from django.http import JsonResponse
 from property.estate.wputils import get_data_from_msg
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework.decorators import renderer_classes, api_view 
-from UserManagement.utils import send_sms ,send_whatsapp_msg  , read_json_related ,find_related_db
+from UserManagement.utils import send_sms ,send_whatsapp_msg   ,find_related_db
 from chat.models import Messages,Contacts
-from chat.serializers import MessageSerializer ,MessageViewSerializer , ContactViewSerializer, ChatRoomViewSerializer
+from chat.serializers import MessageSerializer ,MessageViewSerializer , ContactViewSerializer
 from property.utils import ReturnResponse ,create_msg , ReturnJsonResponse
 from datetime import datetime
 from django.db.models import Q
