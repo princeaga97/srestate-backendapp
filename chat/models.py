@@ -1,3 +1,4 @@
+from operator import mod
 from django.db import models
 
 # Create your models here.
@@ -30,6 +31,7 @@ class Contacts(models.Model):
     contact = models.TextField(blank=False)
     owner = models.TextField(blank=False)
     timestamp = models.DateTimeField(auto_now_add=True)
+    websocket_url = models.TextField(blank=True,null=True)
 
     def __str__(self):
         
