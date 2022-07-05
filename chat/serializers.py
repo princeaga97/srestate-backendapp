@@ -31,7 +31,6 @@ class MessageViewSerializer(serializers.ModelSerializer):
 class ContactViewSerializer(serializers.ModelSerializer):
     timestamp = serializers.SerializerMethodField()
     last_message = MessageSerializer()
-    webseocket_url = serializers.CharField()
     
     class Meta:
         model = Contacts
