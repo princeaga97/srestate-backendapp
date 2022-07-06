@@ -16,6 +16,7 @@ from property.utils import ReturnResponse ,create_msg , ReturnJsonResponse
 from datetime import datetime
 from django.db.models import Q
 import json
+from websocket import create_connection
 
 
 # Create your views here.
@@ -110,6 +111,9 @@ def demo_reply(request):
                 "receiver_name":sender,
                 "seen":False
             }
+        
+        ws = create_connection(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/")
+        ws.send("Hello, World")
         message, sucess = create_msg_in_db(data,From,recieved=True)
         
         out_json = get_data_from_msg(request.POST["Body"])
