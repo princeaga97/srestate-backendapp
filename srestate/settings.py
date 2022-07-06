@@ -157,7 +157,7 @@ USE_TZ = True
 # adding config
 cloudinary.config(
   cloud_name = "dsk7rqudu",
-  api_key = "qwertyui",
+  api_key = "qwertui",
   api_secret = "0-Vtu1ua0Rl3woq6S4PwTeBM2Wo"
 )
 
