@@ -3,13 +3,13 @@ class chatRouter(object):
 	def db_for_read(self,model,**hints):
 
 		if model._meta.app_label == 'chat':
-			return 'messagedb1'
+			return 'messagedb'
 		return None
 
 	def db_for_write(self,model,**hints):
 
 		if model._meta.app_label == 'chat':
-			return 'messagedb1'
+			return 'messagedb'
 
 		return None
 
@@ -22,12 +22,12 @@ class chatRouter(object):
 
 	def allow_migrate(self,db,app_label,model_name=None, **hints):
 
-		## migration only is only for chat in database messagedb1
+		## migration only is only for chat in database messagedb
 		if app_label == 'chat':
-			return db=='messagedb1'
+			return db=='messagedb'
 
-		## migration for other apps is not accepted in messagedb1 
-		elif db == 'messagedb1':
+		## migration for other apps is not accepted in messagedb 
+		elif db == 'messagedb':
 			return True
 
 		return None

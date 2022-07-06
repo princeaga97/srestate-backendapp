@@ -111,7 +111,7 @@ DATABASES = {
                 'host': mongo_uri
             }  
         },
-        'messagedb1':{
+        'messagedb':{
             "ENGINE": 'django.db.backends.postgresql',
             'NAME': os.environ.get('DATABASE_NAME'),
             'USER': os.environ.get('DATABASE_USER'),
@@ -130,14 +130,14 @@ DATABASES = {
 
 
 }
-print(DATABASES["messagedb1"])
+print(DATABASES["messagedb"])
 AUTH_USER_MODEL = "UserManagement.User" 
 TWILIO_ACCOUNT_SID = "ACddd7e4be77b766c76196481b7f0bf1b2"
 TWILIO_AUTH_TOKEN = "8def2942088e7b44d81fbee5b0f2d476"
 
 import dj_database_url
 db_from_env = dj_database_url.config(conn_max_age=600)
-DATABASES['messagedb1'].update(db_from_env)
+DATABASES['messagedb'].update(db_from_env)
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
