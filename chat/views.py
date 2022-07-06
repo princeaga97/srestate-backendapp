@@ -1,5 +1,6 @@
 import re
 import asyncio
+from asgiref.sync import async_to_sync
 from django.shortcuts import render
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, UpdateAPIView)
@@ -109,6 +110,7 @@ def chatByMobile(request):
 
 @csrf_exempt
 @renderer_classes((TemplateHTMLRenderer, JSONRenderer))
+@async_to_sync
 async def demo_reply(request):
     From = request.POST["From"][12:]
     print(From)
