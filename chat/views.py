@@ -112,6 +112,7 @@ def demo_reply(request):
                 "seen":False
             }
         
+        print(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/")
         ws = websockets.connect(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/")
         ws.send("Hello, World")
         message, sucess = create_msg_in_db(data,From,recieved=True)
