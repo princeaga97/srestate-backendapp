@@ -31,7 +31,7 @@ class Contacts(models.Model):
     contact = models.TextField(blank=False)
     owner = models.TextField(blank=False)
     timestamp = models.DateTimeField(auto_now_add=True)
-    websocket_url = models.TextField(blank=False,default="")
+    websocket_url = models.TextField(blank=True,default="")
 
     def __str__(self):
         self.websocket_url = f"wss://srestatechat.herokuapp.com/ws/chat/{self.owner}_{self.contact}/"
