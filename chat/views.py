@@ -109,7 +109,7 @@ def chatByMobile(request):
 
 @csrf_exempt
 @renderer_classes((TemplateHTMLRenderer, JSONRenderer))
-def demo_reply(request):
+async def demo_reply(request):
     From = request.POST["From"][12:]
     print(From)
     msg  = None
@@ -124,7 +124,7 @@ def demo_reply(request):
                 "seen":False
             }
         print(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/")
-        send_ws(sender,From,request.POST["Body"])
+        await send_ws(sender,From,request.POST["Body"])
         
         message, sucess = create_msg_in_db(data,From,recieved=True)
         
