@@ -130,7 +130,7 @@ DATABASES = {
 
 
 }
-
+print(DATABASES["messagedb1"])
 AUTH_USER_MODEL = "UserManagement.User" 
 TWILIO_ACCOUNT_SID = "ACddd7e4be77b766c76196481b7f0bf1b2"
 TWILIO_AUTH_TOKEN = "8def2942088e7b44d81fbee5b0f2d476"
