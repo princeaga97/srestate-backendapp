@@ -30,6 +30,7 @@ async def send_ws(sender,From,message):
                 #a = readValues() #read values from a function
                 #insertdata(a) #function to write values to mysql
                 await websocket.send('{"message":{"'+ message + '"}')
+                print("send")
             except Exception as e:
                 print(e)
 
