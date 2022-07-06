@@ -1,4 +1,5 @@
 import re
+import asyncio
 from django.shortcuts import render
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, UpdateAPIView)
@@ -97,7 +98,7 @@ def chatByMobile(request):
 
 @csrf_exempt
 @renderer_classes((TemplateHTMLRenderer, JSONRenderer))
-def demo_reply(request):
+async def demo_reply(request):
     From = request.POST["From"][12:]
     print(From)
     msg  = None
@@ -111,10 +112,16 @@ def demo_reply(request):
                 "receiver_name":sender,
                 "seen":False
             }
-        
         print(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/")
-        ws = websockets.connect(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/")
-        ws.send("Hello, World")
+        async with websockets.connect(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/") as websocket:
+            while 1:
+                try:
+                    #a = readValues() #read values from a function
+                    #insertdata(a) #function to write values to mysql
+                    await websocket.send('{"message":{"'+ str(request.POST["Body"]) + '"}')
+                except Exception as e:
+                    print(e)
+        
         message, sucess = create_msg_in_db(data,From,recieved=True)
         
         out_json = get_data_from_msg(request.POST["Body"])
