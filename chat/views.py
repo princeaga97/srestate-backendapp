@@ -23,6 +23,16 @@ import websockets
 # Create your views here.
 # Create your views here.
 
+async def send_ws(sender,From,message):
+    async with websockets.connect(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/") as websocket:
+        while 1:
+            try:
+                #a = readValues() #read values from a function
+                #insertdata(a) #function to write values to mysql
+                await websocket.send('{"message":{"'+ message + '"}')
+            except Exception as e:
+                print(e)
+
 def create_msg_in_db(data,sender,recieved = False):
     serilizer = MessageSerializer(data=data)
     if serilizer.is_valid():
@@ -98,7 +108,7 @@ def chatByMobile(request):
 
 @csrf_exempt
 @renderer_classes((TemplateHTMLRenderer, JSONRenderer))
-async def demo_reply(request):
+def demo_reply(request):
     From = request.POST["From"][12:]
     print(From)
     msg  = None
@@ -113,14 +123,7 @@ async def demo_reply(request):
                 "seen":False
             }
         print(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/")
-        async with websockets.connect(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/") as websocket:
-            while 1:
-                try:
-                    #a = readValues() #read values from a function
-                    #insertdata(a) #function to write values to mysql
-                    await websocket.send('{"message":{"'+ str(request.POST["Body"]) + '"}')
-                except Exception as e:
-                    print(e)
+        send_ws(sender,From,request.POST["Body"])
         
         message, sucess = create_msg_in_db(data,From,recieved=True)
         
