@@ -37,6 +37,7 @@ class MessageViewSerializer(serializers.ModelSerializer):
 
 
 class ContactViewSerializer(serializers.ModelSerializer):
+    timestamp = serializers.SerializerMethodField()
     last_message = MessageSerializer()
     webseocket_url = serializers.SerializerMethodField()
     
@@ -44,7 +45,7 @@ class ContactViewSerializer(serializers.ModelSerializer):
         model = Contacts
         fields = "__all__"
     def get_last_message_timestamp(self, obj):
-        return int(obj.timestamp.timestamp())
+        return int(obj.last_message.timestamp.timestamp())
     
     def get_websocket_url(self,obj):
         return f"wss://srestatechat.herokuapp.com/ws/chat/{obj.owner}_{obj.contact}/"
