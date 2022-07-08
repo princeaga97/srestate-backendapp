@@ -29,6 +29,7 @@ class MessageViewSerializer(serializers.ModelSerializer):
     
     def get_sent(self,obj):
         user = CurrentUserDefault()
+        print(user)
         if obj.sender_name == user.username:
             return True
         return False
