@@ -68,6 +68,7 @@ class ListMessageAPIView(ListAPIView):
     queryset = Messages.objects.all()
     serializer_class = MessageViewSerializer
 
+
 class CreateMessageAPIView(CreateAPIView):
     queryset = Messages.objects.all()
     serializer_class = MessageSerializer
@@ -100,7 +101,7 @@ def chatByMobile(request):
                     Q(receiver_name=request.user.mobile, sender_name = mobile )
             )
         if chats:
-            serializer = MessageViewSerializer(chats,many = True)
+            serializer = MessageViewSerializer(chats,many = True , context={'request': request})
             return ReturnJsonResponse(data = serializer.data,success=True,msg="fetch successfully", status=status.HTTP_200_OK)
         else:
             return ReturnJsonResponse(data = [],success=True,msg="PLease Send First Message", status=status.HTTP_200_OK)
