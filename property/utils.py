@@ -50,6 +50,8 @@ def ReturnResponse(status,errors=[],data=[],msg="",success=False):
 
 
 def ReturnJsonResponse(status,errors=[],data=[],msg="",success=False):
+    if type(data) == str:
+        data = json.loads(data)
     response = {
 
         "success":success,
