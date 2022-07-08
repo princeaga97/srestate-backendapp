@@ -23,7 +23,7 @@ import websockets
 
 # Create your views here.
 # Create your views here.
-
+@async_to_sync
 async def send_ws(sender,From,message):
     async with websockets.connect(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/") as websocket:
         while 1:
@@ -110,7 +110,7 @@ def chatByMobile(request):
 
 @csrf_exempt
 @renderer_classes((TemplateHTMLRenderer, JSONRenderer))
-async def demo_reply(request):
+def demo_reply(request):
     From = request.POST["From"][12:]
     print(From)
     msg  = None
