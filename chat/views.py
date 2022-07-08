@@ -25,7 +25,7 @@ import websockets
 # Create your views here.
 # Create your views here.
 async def send_ws(sender,From,message):
-    websocket =   websockets.connect(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/")
+    websocket = await  websockets.connect(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/")
     try:
         #a = readValues() #read values from a function
         #insertdata(a) #function to write values to mysql
