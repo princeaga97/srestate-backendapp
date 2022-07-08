@@ -44,7 +44,7 @@ class ContactViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contacts
         fields = "__all__"
-    def get_last_message_timestamp(self, obj):
+    def get_timestamp(self, obj):
         return int(obj.last_message.timestamp.timestamp())
     
     def get_websocket_url(self,obj):
