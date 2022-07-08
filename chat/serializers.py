@@ -27,7 +27,7 @@ class MessageViewSerializer(serializers.ModelSerializer):
     def get_timestamp(self, obj):
         return obj.timestamp.timestamp()
     
-    def get_sent(self,obj,context):
+    def get_sent(self,obj):
         if obj.sender_name == self.context["request"].user.username:
             return True
         return False
