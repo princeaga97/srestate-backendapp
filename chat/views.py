@@ -24,7 +24,6 @@ import websockets
 
 # Create your views here.
 # Create your views here.
-@async_to_sync
 async def send_ws(sender,From,message):
     websocket =   websockets.connect(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/")
     try:
