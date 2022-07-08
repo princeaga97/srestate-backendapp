@@ -105,8 +105,8 @@ def chatByMobile(request):
             )
         result_page = paginator.paginate_queryset(chats, request)
         if chats:
-            serializer = MessageViewSerializer(result_page,many = True , context={'request': request})
-            return ReturnJsonResponse(data = JsonResponse(paginator.get_paginated_response(serializer.data),safe=False),success=True,msg="fetch successfully", status=status.HTTP_200_OK)
+            serializer = MessageViewSerializer(chats,many = True , context={'request': request})
+            return ReturnJsonResponse(data =serializer.data ,success=True,msg="fetch successfully", status=status.HTTP_200_OK)
         else:
             return ReturnJsonResponse(data = [],success=True,msg="PLease Send First Message", status=status.HTTP_200_OK)
     except Exception as e:
