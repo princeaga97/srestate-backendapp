@@ -129,7 +129,7 @@ def demo_reply(request):
                 "seen":False
             }
         print(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/")# Once the task is created, it will begin running in parallel
-        async_to_sync(send_ws(sender,From,request.POST["Body"]))
+        asyncio.run(send_ws(sender,From,request.POST["Body"]))
         
         message, sucess = create_msg_in_db(data,From,recieved=True)
         
