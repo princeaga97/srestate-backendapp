@@ -26,14 +26,15 @@ import websockets
 # Create your views here.
 @async_to_sync
 async def send_ws(sender,From,message):
-    async with websockets.connect(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/") as websocket:
-        try:
-            #a = readValues() #read values from a function
-            #insertdata(a) #function to write values to mysql
-            await websocket.send('{"message":{"'+ message + '"}')
-            print("send")
-        except Exception as e:
-            print(e)
+    websocket =   websockets.connect(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/") as websocket:
+    try:
+        #a = readValues() #read values from a function
+        #insertdata(a) #function to write values to mysql
+        print("send")
+        return [await websocket.send('{"message":{"'+ message + '"}')]
+        
+    except Exception as e:
+        print(e)
 
 def create_msg_in_db(data,sender,recieved = False):
     serilizer = MessageSerializer(data=data)
