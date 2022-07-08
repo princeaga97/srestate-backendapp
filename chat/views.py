@@ -4,6 +4,7 @@ from asgiref.sync import async_to_sync
 from django.shortcuts import render
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, UpdateAPIView)
+from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from property.location.location_views import db
@@ -92,6 +93,8 @@ class ListContactAPIView(ListAPIView):
 @renderer_classes((TemplateHTMLRenderer, JSONRenderer))
 def chatByMobile(request):
     try:
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
         mobile = request.GET.get('mobile')
         print(request.user)
         if mobile is None:
@@ -100,8 +103,9 @@ def chatByMobile(request):
                 Q(sender_name=request.user.mobile, receiver_name = mobile )|
                     Q(receiver_name=request.user.mobile, sender_name = mobile )
             )
+        result_page = paginator.paginate_queryset(chats, request)
         if chats:
-            serializer = MessageViewSerializer(chats,many = True , context={'request': request})
+            serializer = MessageViewSerializer(result_page,many = True , context={'request': request})
             return ReturnJsonResponse(data = serializer.data,success=True,msg="fetch successfully", status=status.HTTP_200_OK)
         else:
             return ReturnJsonResponse(data = [],success=True,msg="PLease Send First Message", status=status.HTTP_200_OK)
