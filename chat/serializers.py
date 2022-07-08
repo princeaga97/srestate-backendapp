@@ -19,6 +19,12 @@ class MessageSerializer(serializers.ModelSerializer):
 class MessageViewSerializer(serializers.ModelSerializer):
     timestamp = serializers.SerializerMethodField()
     sent = serializers.SerializerMethodField()
+    
+    
+    def __init__(self,context):
+        self.context = context
+        print(context)
+        print(self.context["request"].user)
 
     class Meta:
         model = Messages
@@ -30,7 +36,7 @@ class MessageViewSerializer(serializers.ModelSerializer):
     def get_sent(self,obj):
         user = CurrentUserDefault()
         print(user)
-        if obj.sender_name == user.username:
+        if obj.sender_name == self.context["request"].user:
             return True
         return False
     
