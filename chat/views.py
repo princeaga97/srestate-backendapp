@@ -30,7 +30,7 @@ def send_ws(sender,From,message):
     try:
         #a = readValues() #read values from a function
         #insertdata(a) #function to write values to mysql
-        response = requests.post(f"https://srestatechat.herokuapp.com/chat/{room_name}/reply",{"message":message})
+        response = requests.post(f"https://96ba-103-125-131-164.in.ngrok.io/chat/{room_name}/reply",{"message":message})
         print(response)
     except Exception as e:
         print(e)
@@ -129,7 +129,7 @@ def demo_reply(request):
                 "seen":False
             }
         print(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/")# Once the task is created, it will begin running in parallel
-        asyncio.run(send_ws(sender,From,request.POST["Body"]))
+        send_ws(sender,From,request.POST["Body"])
         
         message, sucess = create_msg_in_db(data,From,recieved=True)
         
