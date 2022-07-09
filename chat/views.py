@@ -32,10 +32,10 @@ def send_ws(WS_String,message):
         asyncio.set_event_loop(loop)              
         ws_conn = loop.run_until_complete(websockets.connect(WS_String))               
         loop.run_until_complete(ws_conn.send(json.dumps({"message":message})))
-        ws_conn.close()
+        loop.run_until_complete(ws_conn.close())
         return True
     except Exception as e:
-        print(e)
+        print("websocket Error " ,e)
 
 def create_msg_in_db(data,sender,recieved = False):
     serilizer = MessageSerializer(data=data)
