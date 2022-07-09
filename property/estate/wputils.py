@@ -1,7 +1,3 @@
-from cgi import print_arguments
-from hashlib import new
-from lib2to3.pygram import python_grammar_no_print_statement
-from nis import match
 import re
 import json
 from property.location.location_views import db
@@ -341,10 +337,8 @@ def findALlRequiremnts(lines,start_index):
 def filterSize(mydict):
 
     if "number_of_bedrooms" in mydict.keys():
-        print("Here1")
         mydict["number_of_bedrooms"] = [ x.lower() for x in mydict["number_of_bedrooms"] ]
         filterRooms(mydict)
-        print("mydict",mydict)
     if "Others" in mydict.keys():
         filterOthers(mydict)
     
@@ -355,7 +349,6 @@ def get_data_from_msg(string):
     start_index =0
     end_index = 0
     i=0
-    print(len(lines))
     owner = "7984702696"
     new_dic = dict()
     json_index = []
@@ -379,14 +372,12 @@ def get_data_from_msg(string):
         elif lines[i] == "\n":
             i=i+1
         else:
-            print("json_index",json_index)
             if owner in new_dic.keys():
                 new_dic[owner].append(json_index[0])
             else:
                 new_dic[owner] = [json_index[0]]
             i =i+1
 
-    print("new_dic",new_dic)
     jsonlist = dict()
 
     prev_json = dict()
@@ -396,7 +387,6 @@ def get_data_from_msg(string):
             for k in new_dic[i][j].keys():
                 
                 filterSize(new_dic[i][j][k])
-                print("n",new_dic[i][j][k])
                 
                 # print("prev_json" , prev_json)
                 present_json = new_dic[i][j][k]
@@ -433,7 +423,6 @@ def get_data_from_msg(string):
                 else:
                     jsonlist[i] = [prev_json]
 
-    print(jsonlist)
     validlist = dict()
     for key in jsonlist.keys():
         for i,jobject in enumerate(jsonlist[key]):
