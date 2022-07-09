@@ -25,13 +25,13 @@ import requests
 
 # Create your views here.
 # Create your views here.
-def send_ws(WS_String,message):
+def send_ws(WS_String,From,message):
     try:
         timeout = 5
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)              
         ws_conn = loop.run_until_complete(websockets.connect(WS_String))               
-        loop.run_until_complete(ws_conn.send(json.dumps({"message":message})))
+        loop.run_until_complete(ws_conn.send(json.dumps({"message":message,"sender":From,"sent":False})))
         loop.run_until_complete(ws_conn.close())
         return True
     except Exception as e:
@@ -131,7 +131,7 @@ def demo_reply(request):
             }
         WS_String  = f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/"
         print(WS_String)# Once the task is created, it will begin running in parallel
-        send_ws(WS_String,request.POST["Body"])
+        send_ws(WS_String,From,request.POST["Body"])
         
         message, sucess = create_msg_in_db(data,From,recieved=True)
         
