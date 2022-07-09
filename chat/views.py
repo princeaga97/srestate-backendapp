@@ -86,10 +86,6 @@ class CreateMessageAPIView(CreateAPIView):
 class ListContactAPIView(ListAPIView):
     queryset = Contacts.objects.all()
     serializer_class = ContactViewSerializer
-    def get(self,request):
-        queryset = Contacts.objects.filter(Q(owner= request.user.mobile) & ~Q(contact = request.user.mobile) )
-        serializer = ContactViewSerializer(queryset,many = True)
-        return ReturnResponse(data = serializer.data, success=True, status=status.HTTP_200_OK)
         
 
 
