@@ -25,13 +25,16 @@ import requests
 
 # Create your views here.
 # Create your views here.
-def send_ws(sender,From,message):
-    room_name = f"{sender}_{From}"
+def send_ws(WS_String,message):
     try:
-        #a = readValues() #read values from a function
-        #insertdata(a) #function to write values to mysql
-        response = requests.post(f"https://96ba-103-125-131-164.in.ngrok.io/chat/{room_name}/reply",{"message":message})
-        print(response)
+        timeout = 5
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)              
+        ws_conn = loop.run_until_complete(websockets.connect(WS_String), timeout)               
+        loop.run_until_complete(ws_conn.send(json.dumps({"message":message})))
+        response = loop.run_until_complete(ws_conn.recv())
+        ws_conn.close()
+        return True
     except Exception as e:
         print(e)
 
@@ -128,8 +131,9 @@ def demo_reply(request):
                 "receiver_name":sender,
                 "seen":False
             }
-        print(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/")# Once the task is created, it will begin running in parallel
-        send_ws(sender,From,request.POST["Body"])
+        WS_String  = f"wss://96ba-103-125-131-164.in.ngrok.io/ws/chat/{sender}_{From}/"
+        print(WS_String)# Once the task is created, it will begin running in parallel
+        send_ws(WS_String,request.POST["Body"])
         
         message, sucess = create_msg_in_db(data,From,recieved=True)
         
