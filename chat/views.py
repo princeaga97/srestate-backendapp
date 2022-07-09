@@ -53,7 +53,6 @@ def create_msg_in_db(data,sender,recieved = False):
                 owner = sender,
                 contact  = serilizer.validated_data["receiver_name"]
             )
-            print("data",data)
             serilizer.validated_data["sender_name"] = sender
             serilizer.validated_data["sent"] = True
             message = serilizer.create(serilizer.validated_data)
@@ -148,13 +147,12 @@ def demo_reply(request):
             if queryset:
                 listestate = list(queryset)
                 messageString = create_msg(listestate)
-                send_whatsapp_msg(From,messageString)
+                print(send_whatsapp_msg(From,messageString))
                 data = {
                     "description":messageString[0],
                     "receiver_name":From,
                     "seen":False
                 }
-                print("messageString",messageString)
                 message, sucess = create_msg_in_db(data,sender)
             else:
                 messageString = "no estate found"
