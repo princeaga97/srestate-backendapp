@@ -32,7 +32,6 @@ def send_ws(WS_String,message):
         asyncio.set_event_loop(loop)              
         ws_conn = loop.run_until_complete(websockets.connect(WS_String))               
         loop.run_until_complete(ws_conn.send(json.dumps({"message":message})))
-        response = loop.run_until_complete(ws_conn.recv())
         ws_conn.close()
         return True
     except Exception as e:
