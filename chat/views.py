@@ -129,7 +129,7 @@ def demo_reply(request):
                 "receiver_name":sender,
                 "seen":False
             }
-        WS_String  = f"wss://96ba-103-125-131-164.in.ngrok.io/ws/chat/{sender}_{From}/"
+        WS_String  = f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/"
         print(WS_String)# Once the task is created, it will begin running in parallel
         send_ws(WS_String,request.POST["Body"])
         
