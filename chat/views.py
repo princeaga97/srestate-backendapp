@@ -20,18 +20,18 @@ from datetime import datetime
 from django.db.models import Q
 import json
 import websockets
+import requests
 
 
 # Create your views here.
 # Create your views here.
-async def send_ws(sender,From,message):
-    websocket = await  websockets.connect(f"wss://srestatechat.herokuapp.com/ws/chat/{sender}_{From}/")
+def send_ws(sender,From,message):
+    room_name = f"{sender}_{From}"
     try:
         #a = readValues() #read values from a function
         #insertdata(a) #function to write values to mysql
-        print("send",websocket)
-        return [await websocket.send('{"message":{"'+ message + '"}')]
-        
+        response = requests.post(f"https://srestatechat.herokuapp.com/chat/{room_name}/reply",{"message":message})
+        print(response)
     except Exception as e:
         print(e)
 
