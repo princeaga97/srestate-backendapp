@@ -7,4 +7,5 @@ urlpatterns = [
     path("contactlist/", views.ListContactAPIView.as_view(), name="contact_list"),
     path("chatbymobile/",views.chatByMobile , name="chat_by_mobile"),
     path("reply/", views.demo_reply, name="chat_reply"),
+    path("contact_details/<str:broker>/<str:client>/", views.get_contact_detail_view , name="contacts_details")
 ]

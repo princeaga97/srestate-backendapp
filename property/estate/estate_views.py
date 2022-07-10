@@ -18,6 +18,7 @@ import redis
 from property.utils import create_msg , check_balance ,ReturnResponse
 from property.location.location_views import db
 from chat.views import create_msg_in_db
+from chat.models import Contacts
 from UserManagement.utils import send_sms ,send_whatsapp_msg  , read_json_related ,find_related_db
 
 
@@ -224,8 +225,22 @@ def get_filter_estate(request):
 def send_message(request):
     try:
         findQuery ={}
+        mobile_number = request.data["mobile"]
         if "estates" in request.data.keys() and list(request.data["estates"]):
             findQuery["id"] = {"$in":list(request.data["estates"])}
+            contact_found,created = Contacts.objects.get_or_create(
+                owner = request.user.mobile,
+                contact = mobile_number
+            )
+            if created:
+                estate_list = ",".join(list(request.data["estates"]))
+                contact_found.estate_list = estate_list
+            else:
+                old_list =[]
+                old_list = contact_found.estate_list.split(",")
+                estate_list = ",".join(set(list(request.data["estates"])+old_list))
+                contact_found.estate_list = estate_list
+            contact_found.save()
         findQuery["broker_mobile"] = request.user.mobile
         
         print(findQuery)
@@ -243,7 +258,7 @@ def send_message(request):
                 response["balance"] = request.user.balance
                 return ReturnResponse(data=response, errors=["Insufficent Balance"],success=False,msg="no data found",status= status.HTTP_200_OK)
 
-            mobile_number = request.data["mobile"]
+            
             
             if "sms" in request.data and  request.data["sms"]:
                 sms = send_sms(mobile_number,messageString[0])

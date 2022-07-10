@@ -21,6 +21,7 @@ from django.db.models import Q
 import json
 import websockets
 import requests
+from property.location.location_views import db
 
 
 # Create your views here.
@@ -84,9 +85,24 @@ class CreateMessageAPIView(CreateAPIView):
 
 
 class ListContactAPIView(ListAPIView):
-    queryset = Contacts.objects.all()
     serializer_class = ContactViewSerializer
+    def get_queryset(self) :
+        request = self.request
+        queryset = Contacts.objects.filter(Q(owner= request.user.mobile) & ~Q(contact = request.user.mobile) )
+        return queryset
         
+
+@api_view(('GET',))
+@csrf_exempt
+@renderer_classes((TemplateHTMLRenderer, JSONRenderer))
+def get_contact_detail_view(request,broker,client) :
+    queryset = Contacts.objects.filter(owner= broker ,contact = client)
+    serializer = ContactViewSerializer(queryset,many = True , context={'request': request})
+    mycol = db.property_estate
+    findQuery ={}
+    findQuery["id"] = {"$in":request.data["eststate_list"].split(",")}
+    serializer.data["eststate_list"] =  list(mycol.find(findQuery))
+    return ReturnJsonResponse(data =serializer.data ,success=True,msg="fetch successfully", status=status.HTTP_200_OK)
 
 
 @api_view(('GET',))
