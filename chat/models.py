@@ -31,7 +31,7 @@ class Contacts(models.Model):
     contact = models.TextField(blank=False)
     owner = models.TextField(blank=False)
     timestamp = models.DateTimeField(auto_now_add=True)
-    eststate_list = models.TextField(blank=True,default="")
+    estate_list = models.TextField(blank=True,default="")
     websocket_url = models.TextField(blank=True,default="")
 
     def __str__(self):
