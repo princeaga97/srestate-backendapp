@@ -1,9 +1,5 @@
-from dataclasses import fields
-
-from numpy import absolute
 from rest_framework import serializers
 from chat.models import Contacts, Messages 
-from rest_framework.fields import CurrentUserDefault
 from property.models import Estate
 
 
