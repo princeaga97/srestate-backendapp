@@ -246,6 +246,7 @@ def send_message(request):
                         old_list.remove(i)
 
                 print("old_list1",old_list)
+                eststate_list = "0"
                 for x in list(set(request.data["estates"]+old_list)):
                     eststate_list = eststate_list + f",{str(x)}"
                 print("here2")
