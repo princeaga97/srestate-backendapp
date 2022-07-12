@@ -235,8 +235,10 @@ def send_message(request):
             if created:
                 eststate_list = ",".join(list(request.data["estates"]))
                 contact_found.eststate_list = eststate_list
+                print(contact_found)
             else:
                 old_list =[]
+                print(contact_found)
                 old_list = contact_found.eststate_list.split(",")
                 eststate_list = ",".join(set(list(request.data["estates"])+old_list))
                 contact_found.eststate_list = eststate_list
