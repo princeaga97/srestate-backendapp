@@ -101,7 +101,7 @@ def get_contact_detail_view(request,broker,client) :
     serializer = ContactViewSerializer( queryset , context={'request': request})
     mycol = db.property_estate
     findQuery ={}
-    print("data",serializer.data)
+    print("list",serializer.data["eststate_list"].split(","))
     findQuery["id"] = {"$in":serializer.data["eststate_list"].split(",")}
     print(list(mycol.find(findQuery)))
     serializer.data["eststate_list"] =  list(mycol.find(findQuery))
