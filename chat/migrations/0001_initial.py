@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                 ('contact', models.TextField()),
                 ('owner', models.TextField()),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('estate_list', models.TextField(blank=True, default='')),
+                ('eststate_list', models.TextField(blank=True, default='')),
                 ('websocket_url', models.TextField(blank=True, default='')),
                 ('last_message', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='latest_msg', to='chat.Messages')),
             ],

@@ -3,7 +3,7 @@ from django.urls import path, re_path
 from property.estate import estate_views as views
 
 urlpatterns = [
-    path("estate/",views.ListEstateAPIView.as_view(),name="estate_list"),
+    path("estate/",views.ListEstateAPIView.as_view(),name="eststate_list"),
     path("estate/buy/",views.get_buy_estate,name="estate_buy_list"),
     path("estate/sell/",views.get_sell_estate,name="estate_sell_list"),
     path("estate/filter_query/",views.get_filter_estate,name="estate_filter_list"),

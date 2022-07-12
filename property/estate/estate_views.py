@@ -233,13 +233,13 @@ def send_message(request):
                 contact = mobile_number
             )
             if created:
-                estate_list = ",".join(list(request.data["estates"]))
-                contact_found.estate_list = estate_list
+                eststate_list = ",".join(list(request.data["estates"]))
+                contact_found.eststate_list = eststate_list
             else:
                 old_list =[]
-                old_list = contact_found.estate_list.split(",")
-                estate_list = ",".join(set(list(request.data["estates"])+old_list))
-                contact_found.estate_list = estate_list
+                old_list = contact_found.eststate_list.split(",")
+                eststate_list = ",".join(set(list(request.data["estates"])+old_list))
+                contact_found.eststate_list = eststate_list
             contact_found.save()
         findQuery["broker_mobile"] = request.user.mobile
         
