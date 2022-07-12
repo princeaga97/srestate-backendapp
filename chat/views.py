@@ -101,11 +101,15 @@ def get_contact_detail_view(request,broker,client) :
     serializer = ContactViewSerializer( queryset , context={'request': request})
     mycol = db.property_estate
     findQuery ={}
-    print("list",serializer.data["eststate_list"].split(","))
-    findQuery["id"] = {"$in":serializer.data["eststate_list"].split(",")}
+    estate_list = serializer.data["eststate_list"].split(",")
+    find_list = []
+    for x in estate_list :
+        find_list.append(int(x))
+    findQuery["id"] = {"$in":find_list}
     print(list(mycol.find(findQuery)))
-    serializer.data["eststate_list"] =  list(mycol.find(findQuery))
-    return ReturnJsonResponse(data =serializer.data ,success=True,msg="fetch successfully", status=status.HTTP_200_OK)
+    data = serializer.data
+    data["eststate_list"] =  list(mycol.find(findQuery))
+    return ReturnJsonResponse(data =data ,success=True,msg="fetch successfully", status=status.HTTP_200_OK)
 
 
 @api_view(('GET',))
