@@ -106,13 +106,13 @@ def get_contact_detail_view(request,broker,client) :
     for x in estate_list :
         find_list.append(int(x))
     findQuery["id"] = {"$in":find_list}
-    print(list(mycol.find(findQuery)))
+    my_list = list(mycol.find(findQuery))
     data = serializer.data
-    for index,estate in list(mycol.find(findQuery)):
+    for index,estate in my_list:
         print("index",index)
-        list(mycol.find(findQuery))[index].pop("_id")
+        my_list[index].pop("_id")
         
-    data["eststate_list"] =  list(mycol.find(findQuery))
+    data["eststate_list"] =  my_list
     return ReturnJsonResponse(data =data ,success=True,msg="fetch successfully", status=status.HTTP_200_OK)
 
 
