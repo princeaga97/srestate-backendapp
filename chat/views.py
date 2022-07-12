@@ -112,8 +112,8 @@ def get_contact_detail_view(request,broker,client) :
     for index,estate in enumerate(my_list):
         print("index",index)
         my_list[index].pop("_id")
-        my_list[index]["balconies_space"] = int(float(my_list[index]["balconies_space"]))
-        my_list[index]["floor_space"] = int(float(my_list[index]["floor_space"]))
+        my_list[index]["balconies_space"] = int(float(str(my_list[index]["balconies_space"])))
+        my_list[index]["floor_space"] = int(float(str(my_list[index]["floor_space"])))
 
     data["eststate_list"] =  my_list
     print(data["eststate_list"])
