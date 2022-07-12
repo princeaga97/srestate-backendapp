@@ -108,9 +108,11 @@ def get_contact_detail_view(request,broker,client) :
     findQuery["id"] = {"$in":find_list}
     print(list(mycol.find(findQuery)))
     data = serializer.data
+    for index,estate in list(mycol.find(findQuery)):
+        print("index",index)
+        list(mycol.find(findQuery))[index].pop("_id")
+        
     data["eststate_list"] =  list(mycol.find(findQuery))
-    for index,estate in enumerate(data["eststate_list"]):
-        data["eststate_list"][index].pop("_id")
     return ReturnJsonResponse(data =data ,success=True,msg="fetch successfully", status=status.HTTP_200_OK)
 
 
