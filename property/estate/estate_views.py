@@ -241,9 +241,12 @@ def send_message(request):
                 print("her1contact_found")
                 old_list = contact_found.eststate_list.split(",")
                 print("old_list",old_list)
-                eststate_list = ",".join(set(list(request.data["estates"])))
-                if old_list != ['']:
-                    eststate_list = ",".join(set(list(request.data["estates"])+old_list))
+                for i in old_list:
+                    if i == "":
+                        old_list.remove(i)
+                eststate_list = ",".join(request.data["estates"])
+                if old_list:
+                    eststate_list = ",".join(list(set(request.data["estates"]+old_list)))
                 print("here2")
                 contact_found.eststate_list = eststate_list
             contact_found.save()
