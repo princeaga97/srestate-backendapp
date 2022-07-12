@@ -100,6 +100,7 @@ def get_contact_detail_view(request,broker,client) :
     serializer = ContactViewSerializer(queryset,many = True , context={'request': request})
     mycol = db.property_estate
     findQuery ={}
+    print("data",serializer.data)
     findQuery["id"] = {"$in":serializer.data["eststate_list"].split(",")}
     serializer.data["eststate_list"] =  list(mycol.find(findQuery))
     return ReturnJsonResponse(data =serializer.data ,success=True,msg="fetch successfully", status=status.HTTP_200_OK)
