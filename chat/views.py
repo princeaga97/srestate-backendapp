@@ -97,6 +97,7 @@ class ListContactAPIView(ListAPIView):
 @renderer_classes((TemplateHTMLRenderer, JSONRenderer))
 def get_contact_detail_view(request,broker,client) :
     queryset = Contacts.objects.filter(owner= broker ,contact = client)
+    print(queryset)
     serializer = ContactViewSerializer(queryset , context={'request': request})
     mycol = db.property_estate
     findQuery ={}
