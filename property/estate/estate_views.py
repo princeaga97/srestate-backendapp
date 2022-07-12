@@ -238,8 +238,9 @@ def send_message(request):
                 print(contact_found)
             else:
                 old_list =[]
-                print(contact_found)
+                print("her1contact_found")
                 old_list = contact_found.eststate_list.split(",")
+                print("old_list",old_list)
                 eststate_list = ",".join(set(list(request.data["estates"])+old_list))
                 print("here2")
                 contact_found.eststate_list = eststate_list
