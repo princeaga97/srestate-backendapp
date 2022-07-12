@@ -242,7 +242,7 @@ def send_message(request):
                 old_list = contact_found.eststate_list.split(",")
                 print("old_list",old_list)
                 eststate_list = ",".join(set(list(request.data["estates"])))
-                if old_list != [""]:
+                if old_list != ['']:
                     eststate_list = ",".join(set(list(request.data["estates"])+old_list))
                 print("here2")
                 contact_found.eststate_list = eststate_list
