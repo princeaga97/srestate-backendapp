@@ -114,6 +114,7 @@ def get_contact_detail_view(request,broker,client) :
         my_list[index].pop("_id")
         
     data["eststate_list"] =  my_list
+    print(data["eststate_list"])
     return ReturnJsonResponse(data =data ,success=True,msg="fetch successfully", status=status.HTTP_200_OK)
 
 
