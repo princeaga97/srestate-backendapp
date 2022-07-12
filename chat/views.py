@@ -108,7 +108,8 @@ def get_contact_detail_view(request,broker,client) :
     findQuery["id"] = {"$in":find_list}
     my_list = list(mycol.find(findQuery))
     data = serializer.data
-    for index,estate in my_list:
+    print(my_list)
+    for index,estate in enumerate(my_list):
         print("index",index)
         my_list[index].pop("_id")
         
