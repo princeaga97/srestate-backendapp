@@ -241,8 +241,10 @@ def send_message(request):
                 print(contact_found)
                 old_list = contact_found.eststate_list.split(",")
                 eststate_list = ",".join(set(list(request.data["estates"])+old_list))
+                print("here2")
                 contact_found.eststate_list = eststate_list
             contact_found.save()
+            print("here1")
         findQuery["broker_mobile"] = request.user.mobile
         
         print(findQuery)
