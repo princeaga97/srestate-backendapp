@@ -103,6 +103,7 @@ def get_contact_detail_view(request,broker,client) :
     findQuery ={}
     print("data",serializer.data)
     findQuery["id"] = {"$in":serializer.data["eststate_list"].split(",")}
+    print(list(mycol.find(findQuery)))
     serializer.data["eststate_list"] =  list(mycol.find(findQuery))
     return ReturnJsonResponse(data =serializer.data ,success=True,msg="fetch successfully", status=status.HTTP_200_OK)
 
