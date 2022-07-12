@@ -44,7 +44,10 @@ class ContactViewSerializer(serializers.ModelSerializer):
         model = Contacts
         fields = "__all__"
     def get_timestamp(self, obj):
-        return int(obj.last_message.timestamp.timestamp())
+        if obj.last_message:
+            return int(obj.last_message.timestamp.timestamp())
+        else:
+            return 0
     
     def get_websocket_url(self,obj):
         return f"wss://srestatechat.herokuapp.com/ws/chat/{obj.owner}_{obj.contact}/"
