@@ -3,10 +3,6 @@ from chat.models import Contacts, Messages
 from property.models import Estate
 
 
-
-
-
-
 class MessageSerializer(serializers.ModelSerializer):
 
     
